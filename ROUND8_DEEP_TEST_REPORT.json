@@ -1,0 +1,1242 @@
+{
+  "round": 8,
+  "timestamp": "2026-05-22T13:59:56.568Z",
+  "summary": {
+    "total": 159,
+    "passed": 155,
+    "failed": 4,
+    "rate": "97.5%"
+  },
+  "groupStats": {
+    "一、静态代码核验": {
+      "pass": 17,
+      "fail": 0,
+      "total": 17
+    },
+    "二、单元全覆盖 - EventBus": {
+      "pass": 14,
+      "fail": 1,
+      "total": 15
+    },
+    "二、单元全覆盖 - ModuleRegistry": {
+      "pass": 18,
+      "fail": 0,
+      "total": 18
+    },
+    "二、单元全覆盖 - Logger": {
+      "pass": 6,
+      "fail": 0,
+      "total": 6
+    },
+    "二、单元全覆盖 - Utils": {
+      "pass": 8,
+      "fail": 0,
+      "total": 8
+    },
+    "二、单元全覆盖 - State": {
+      "pass": 5,
+      "fail": 1,
+      "total": 6
+    },
+    "二、单元全覆盖 - ThemeModule": {
+      "pass": 14,
+      "fail": 0,
+      "total": 14
+    },
+    "二、单元全覆盖 - DetailedLogger": {
+      "pass": 11,
+      "fail": 1,
+      "total": 12
+    },
+    "三、模块集成联调": {
+      "pass": 8,
+      "fail": 0,
+      "total": 8
+    },
+    "四、接口全量遍历": {
+      "pass": 10,
+      "fail": 0,
+      "total": 10
+    },
+    "五、业务场景闭环": {
+      "pass": 6,
+      "fail": 0,
+      "total": 6
+    },
+    "六、数据一致性": {
+      "pass": 5,
+      "fail": 0,
+      "total": 5
+    },
+    "七、异常容错": {
+      "pass": 10,
+      "fail": 0,
+      "total": 10
+    },
+    "八、性能核验": {
+      "pass": 6,
+      "fail": 0,
+      "total": 6
+    },
+    "九、边界条件": {
+      "pass": 5,
+      "fail": 0,
+      "total": 5
+    },
+    "十、回归测试 - 历史BUG修复": {
+      "pass": 9,
+      "fail": 1,
+      "total": 10
+    },
+    "十一、新BUG检测": {
+      "pass": 3,
+      "fail": 0,
+      "total": 3
+    }
+  },
+  "failures": [
+    {
+      "id": "T028",
+      "group": "二、单元全覆盖 - EventBus",
+      "name": "getHistory返回深拷贝",
+      "status": "FAIL",
+      "error": "值不匹配: 期望=1, 实际=999"
+    },
+    {
+      "id": "T066",
+      "group": "二、单元全覆盖 - State",
+      "name": "拒绝__proto__",
+      "status": "FAIL",
+      "error": "值不匹配: 期望=undefined, 实际={}"
+    },
+    {
+      "id": "T095",
+      "group": "二、单元全覆盖 - DetailedLogger",
+      "name": "timeStart/timeEnd",
+      "status": "FAIL",
+      "error": "performance.mark is not a function"
+    },
+    {
+      "id": "T154",
+      "group": "十、回归测试 - 历史BUG修复",
+      "name": "BUG-011: getHistory深拷贝",
+      "status": "FAIL",
+      "error": "值不匹配: 期望=42, 实际=0"
+    }
+  ],
+  "allResults": [
+    {
+      "id": "T001",
+      "group": "一、静态代码核验",
+      "name": "core.js: EventBus类结构完整",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T002",
+      "group": "一、静态代码核验",
+      "name": "core.js: ModuleRegistry类结构完整",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T003",
+      "group": "一、静态代码核验",
+      "name": "core.js: 递归emit保护(BUG-001)",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T004",
+      "group": "一、静态代码核验",
+      "name": "core.js: null实例检查(BUG-003)",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T005",
+      "group": "一、静态代码核验",
+      "name": "core.js: PAUSED状态(BUG-004)",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T006",
+      "group": "一、静态代码核验",
+      "name": "core.js: 最大监听器限制(BUG-005)",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T007",
+      "group": "一、静态代码核验",
+      "name": "core.js: Logger级别白名单(BUG-006)",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T008",
+      "group": "一、静态代码核验",
+      "name": "core.js: debounce cancel/flush(BUG-008)",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T009",
+      "group": "一、静态代码核验",
+      "name": "core.js: 拓扑排序销毁(BUG-010)",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T010",
+      "group": "一、静态代码核验",
+      "name": "core.js: getHistory深拷贝(BUG-011)",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T011",
+      "group": "一、静态代码核验",
+      "name": "core.js: unregister方法(ROUND5)",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T012",
+      "group": "一、静态代码核验",
+      "name": "detailed-logger.js: 大对象截断(ROUND4-001)",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T013",
+      "group": "一、静态代码核验",
+      "name": "detailed-logger.js: 内存监控(ROUND4-002)",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T014",
+      "group": "一、静态代码核验",
+      "name": "main.js: State原型污染保护",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T015",
+      "group": "一、静态代码核验",
+      "name": "theme.js: 三态切换逻辑",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T016",
+      "group": "一、静态代码核验",
+      "name": "main.js: 所有模块destroy方法",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T017",
+      "group": "一、静态代码核验",
+      "name": "theme.js: destroy清理事件",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T018",
+      "group": "二、单元全覆盖 - EventBus",
+      "name": "基本订阅和发布",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T019",
+      "group": "二、单元全覆盖 - EventBus",
+      "name": "多个监听器",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T020",
+      "group": "二、单元全覆盖 - EventBus",
+      "name": "once只触发一次",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T021",
+      "group": "二、单元全覆盖 - EventBus",
+      "name": "off取消订阅",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T022",
+      "group": "二、单元全覆盖 - EventBus",
+      "name": "返回取消函数",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T023",
+      "group": "二、单元全覆盖 - EventBus",
+      "name": "clear清除所有",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T024",
+      "group": "二、单元全覆盖 - EventBus",
+      "name": "clear指定事件",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T025",
+      "group": "二、单元全覆盖 - EventBus",
+      "name": "递归emit保护",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T026",
+      "group": "二、单元全覆盖 - EventBus",
+      "name": "handler非函数返回空取消函数",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T027",
+      "group": "二、单元全覆盖 - EventBus",
+      "name": "handler异常不影响其他handler",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T028",
+      "group": "二、单元全覆盖 - EventBus",
+      "name": "getHistory返回深拷贝",
+      "status": "FAIL",
+      "error": "值不匹配: 期望=1, 实际=999"
+    },
+    {
+      "id": "T029",
+      "group": "二、单元全覆盖 - EventBus",
+      "name": "历史记录上限",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T030",
+      "group": "二、单元全覆盖 - EventBus",
+      "name": "destroy清空所有",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T031",
+      "group": "二、单元全覆盖 - EventBus",
+      "name": "emit无监听器不崩溃",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T032",
+      "group": "二、单元全覆盖 - EventBus",
+      "name": "emit各种数据类型",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T033",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "基本注册和获取",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T034",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "重复注册覆盖",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T035",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "初始化不存在的模块",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T036",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "null实例初始化失败",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T037",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "依赖自动初始化",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T038",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "循环依赖检测",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T039",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "依赖未注册",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T040",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "重复初始化返回true",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T041",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "initAll返回结果",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T042",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "destroy标记状态",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T043",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "destroyAll拓扑排序",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T044",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "unregister成功",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T045",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "unregister不存在",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T046",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "unregister被依赖的模块失败",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T047",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "unregister已初始化模块先销毁",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T048",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "getStats统计正确",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T049",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "healthCheck返回结果",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T050",
+      "group": "二、单元全覆盖 - ModuleRegistry",
+      "name": "init异常捕获",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T051",
+      "group": "二、单元全覆盖 - Logger",
+      "name": "基本日志输出",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T052",
+      "group": "二、单元全覆盖 - Logger",
+      "name": "级别过滤",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T053",
+      "group": "二、单元全覆盖 - Logger",
+      "name": "禁用日志",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T054",
+      "group": "二、单元全覆盖 - Logger",
+      "name": "未知级别降级",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T055",
+      "group": "二、单元全覆盖 - Logger",
+      "name": "setLevel无效值",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T056",
+      "group": "二、单元全覆盖 - Logger",
+      "name": "四个级别方法存在",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T057",
+      "group": "二、单元全覆盖 - Utils",
+      "name": "debounce延迟执行",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T058",
+      "group": "二、单元全覆盖 - Utils",
+      "name": "debounce cancel",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T059",
+      "group": "二、单元全覆盖 - Utils",
+      "name": "debounce flush",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T060",
+      "group": "二、单元全覆盖 - Utils",
+      "name": "throttle限制频率",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T061",
+      "group": "二、单元全覆盖 - Utils",
+      "name": "formatDate标准格式",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T062",
+      "group": "二、单元全覆盖 - Utils",
+      "name": "formatDate无效日期",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T063",
+      "group": "二、单元全覆盖 - Utils",
+      "name": "generateId唯一",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T064",
+      "group": "二、单元全覆盖 - Utils",
+      "name": "generateId带前缀",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T065",
+      "group": "二、单元全覆盖 - State",
+      "name": "基本set/get",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T066",
+      "group": "二、单元全覆盖 - State",
+      "name": "拒绝__proto__",
+      "status": "FAIL",
+      "error": "值不匹配: 期望=undefined, 实际={}"
+    },
+    {
+      "id": "T067",
+      "group": "二、单元全覆盖 - State",
+      "name": "拒绝constructor",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T068",
+      "group": "二、单元全覆盖 - State",
+      "name": "拒绝prototype",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T069",
+      "group": "二、单元全覆盖 - State",
+      "name": "init注册事件",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T070",
+      "group": "二、单元全覆盖 - State",
+      "name": "set触发事件总线",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T071",
+      "group": "二、单元全覆盖 - ThemeModule",
+      "name": "三态切换顺序",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T072",
+      "group": "二、单元全覆盖 - ThemeModule",
+      "name": "getSystemTheme返回有效值",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T073",
+      "group": "二、单元全覆盖 - ThemeModule",
+      "name": "apply dark设置CSS变量",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T074",
+      "group": "二、单元全覆盖 - ThemeModule",
+      "name": "apply light设置CSS变量",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T075",
+      "group": "二、单元全覆盖 - ThemeModule",
+      "name": "apply auto使用系统主题",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T076",
+      "group": "二、单元全覆盖 - ThemeModule",
+      "name": "apply未知主题不崩溃",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T077",
+      "group": "二、单元全覆盖 - ThemeModule",
+      "name": "toggle循环切换",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T078",
+      "group": "二、单元全覆盖 - ThemeModule",
+      "name": "getActualTheme",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T079",
+      "group": "二、单元全覆盖 - ThemeModule",
+      "name": "loadSaved从localStorage",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T080",
+      "group": "二、单元全覆盖 - ThemeModule",
+      "name": "loadSaved无效值使用默认",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T081",
+      "group": "二、单元全覆盖 - ThemeModule",
+      "name": "loadSaved无值使用默认",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T082",
+      "group": "二、单元全覆盖 - ThemeModule",
+      "name": "updateUI更新图标标签",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T083",
+      "group": "二、单元全覆盖 - ThemeModule",
+      "name": "toggle保存到localStorage",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T084",
+      "group": "二、单元全覆盖 - ThemeModule",
+      "name": "destroy清理事件",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T085",
+      "group": "二、单元全覆盖 - DetailedLogger",
+      "name": "基本日志记录",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T086",
+      "group": "二、单元全覆盖 - DetailedLogger",
+      "name": "级别过滤",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T087",
+      "group": "二、单元全覆盖 - DetailedLogger",
+      "name": "模块过滤",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T088",
+      "group": "二、单元全覆盖 - DetailedLogger",
+      "name": "大对象截断",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T089",
+      "group": "二、单元全覆盖 - DetailedLogger",
+      "name": "长字符串截断",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T090",
+      "group": "二、单元全覆盖 - DetailedLogger",
+      "name": "历史上限",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T091",
+      "group": "二、单元全覆盖 - DetailedLogger",
+      "name": "clearHistory",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T092",
+      "group": "二、单元全覆盖 - DetailedLogger",
+      "name": "getHistory过滤",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T093",
+      "group": "二、单元全覆盖 - DetailedLogger",
+      "name": "generateReport",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T094",
+      "group": "二、单元全覆盖 - DetailedLogger",
+      "name": "enter/exit/stateChange/event",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T095",
+      "group": "二、单元全覆盖 - DetailedLogger",
+      "name": "timeStart/timeEnd",
+      "status": "FAIL",
+      "error": "performance.mark is not a function"
+    },
+    {
+      "id": "T096",
+      "group": "二、单元全覆盖 - DetailedLogger",
+      "name": "destroy停止监控",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T097",
+      "group": "三、模块集成联调",
+      "name": "AppCore全局单例结构完整",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T098",
+      "group": "三、模块集成联调",
+      "name": "App.init完整初始化",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T099",
+      "group": "三、模块集成联调",
+      "name": "App.init发布app:ready",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T100",
+      "group": "三、模块集成联调",
+      "name": "App.destroy完整销毁",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T101",
+      "group": "三、模块集成联调",
+      "name": "App.destroy发布app:destroyed",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T102",
+      "group": "三、模块集成联调",
+      "name": "Registry+Bus模块通信",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T103",
+      "group": "三、模块集成联调",
+      "name": "destroyAll后Bus仍可用",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T104",
+      "group": "三、模块集成联调",
+      "name": "ThemeModule+Bus主题变更事件",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T105",
+      "group": "四、接口全量遍历",
+      "name": "EventBus: on/off/emit/clear/getHistory/destroy全接口",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T106",
+      "group": "四、接口全量遍历",
+      "name": "EventBus: once接口",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T107",
+      "group": "四、接口全量遍历",
+      "name": "ModuleRegistry: register/init/destroy/get/getStatus/getRegistered/getStats/healthCheck",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T108",
+      "group": "四、接口全量遍历",
+      "name": "ModuleRegistry: unregister接口",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T109",
+      "group": "四、接口全量遍历",
+      "name": "DetailedLogger: init/setLevel/setModuleFilter/clearFilter",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T110",
+      "group": "四、接口全量遍历",
+      "name": "DetailedLogger: debug/info/warn/error",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T111",
+      "group": "四、接口全量遍历",
+      "name": "DetailedLogger: enter/exit/stateChange/event/memory/dom/network",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T112",
+      "group": "四、接口全量遍历",
+      "name": "DetailedLogger: getHistory/generateReport/export",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T113",
+      "group": "四、接口全量遍历",
+      "name": "State: set/get/init",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T114",
+      "group": "四、接口全量遍历",
+      "name": "ThemeModule: init/apply/toggle/getSystemTheme/getActualTheme/updateUI/loadSaved/destroy",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T115",
+      "group": "五、业务场景闭环",
+      "name": "主题三态完整切换流程",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T116",
+      "group": "五、业务场景闭环",
+      "name": "主题持久化恢复",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T117",
+      "group": "五、业务场景闭环",
+      "name": "侧边栏toggle切换",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T118",
+      "group": "五、业务场景闭环",
+      "name": "侧边栏open/close",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T119",
+      "group": "五、业务场景闭环",
+      "name": "手风琴toggle",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T120",
+      "group": "五、业务场景闭环",
+      "name": "手风琴openAll/closeAll",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T121",
+      "group": "六、数据一致性",
+      "name": "State set/get一致",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T122",
+      "group": "六、数据一致性",
+      "name": "State多次set覆盖",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T123",
+      "group": "六、数据一致性",
+      "name": "EventBus事件与State值一致",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T124",
+      "group": "六、数据一致性",
+      "name": "ThemeModule current与data-theme-mode同步",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T125",
+      "group": "六、数据一致性",
+      "name": "ModuleRegistry getStats一致性",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T126",
+      "group": "七、异常容错",
+      "name": "EventBus handler抛Error不影响其他",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T127",
+      "group": "七、异常容错",
+      "name": "EventBus handler抛TypeError",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T128",
+      "group": "七、异常容错",
+      "name": "EventBus 所有handler抛异常",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T129",
+      "group": "七、异常容错",
+      "name": "ModuleRegistry init同步异常",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T130",
+      "group": "七、异常容错",
+      "name": "ModuleRegistry init异步异常",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T131",
+      "group": "七、异常容错",
+      "name": "ModuleRegistry destroy异常",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T132",
+      "group": "七、异常容错",
+      "name": "ModuleRegistry initAll部分失败",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T133",
+      "group": "七、异常容错",
+      "name": "DetailedLogger log null/undefined",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T134",
+      "group": "七、异常容错",
+      "name": "DetailedLogger log特殊类型",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T135",
+      "group": "七、异常容错",
+      "name": "ThemeModule localStorage不可用",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T136",
+      "group": "八、性能核验",
+      "name": "EventBus万次emit",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T137",
+      "group": "八、性能核验",
+      "name": "ModuleRegistry百模块初始化",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T138",
+      "group": "八、性能核验",
+      "name": "ModuleRegistry百模块销毁",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T139",
+      "group": "八、性能核验",
+      "name": "DetailedLogger万次日志",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T140",
+      "group": "八、性能核验",
+      "name": "State万次set",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T141",
+      "group": "八、性能核验",
+      "name": "EventBus千个监听器",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T142",
+      "group": "九、边界条件",
+      "name": "emit空字符串事件名",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T143",
+      "group": "九、边界条件",
+      "name": "emit超长事件名",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T144",
+      "group": "九、边界条件",
+      "name": "emit特殊字符事件名",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T145",
+      "group": "九、边界条件",
+      "name": "formatDate边界日期",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T146",
+      "group": "九、边界条件",
+      "name": "generateId 1000个唯一",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T147",
+      "group": "十、回归测试 - 历史BUG修复",
+      "name": "BUG-001: 递归emit不无限循环",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T148",
+      "group": "十、回归测试 - 历史BUG修复",
+      "name": "BUG-003: null实例不崩溃",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T149",
+      "group": "十、回归测试 - 历史BUG修复",
+      "name": "BUG-004: PAUSED状态",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T150",
+      "group": "十、回归测试 - 历史BUG修复",
+      "name": "BUG-005: 监听器超限警告",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T151",
+      "group": "十、回归测试 - 历史BUG修复",
+      "name": "BUG-006: 未知日志级别降级",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T152",
+      "group": "十、回归测试 - 历史BUG修复",
+      "name": "BUG-008: debounce有cancel/flush",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T153",
+      "group": "十、回归测试 - 历史BUG修复",
+      "name": "BUG-010: destroyAll拓扑排序",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T154",
+      "group": "十、回归测试 - 历史BUG修复",
+      "name": "BUG-011: getHistory深拷贝",
+      "status": "FAIL",
+      "error": "值不匹配: 期望=42, 实际=0"
+    },
+    {
+      "id": "T155",
+      "group": "十、回归测试 - 历史BUG修复",
+      "name": "ROUND5-001: unregister方法",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T156",
+      "group": "十、回归测试 - 历史BUG修复",
+      "name": "ROUND4-001: 大对象截断",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T157",
+      "group": "十一、新BUG检测",
+      "name": "[检测] DetailedLogger循环引用对象",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T158",
+      "group": "十一、新BUG检测",
+      "name": "[检测] throttle缺少cancel方法(设计不一致)",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T159",
+      "group": "十一、新BUG检测",
+      "name": "[检测] SidebarModule窄窗口自动关闭",
+      "status": "PASS",
+      "error": null
+    }
+  ]
+}

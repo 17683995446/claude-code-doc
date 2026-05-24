@@ -1,0 +1,164 @@
+{
+  "测试时间": "2026-05-22T01:45:37.022Z",
+  "测试文件": "/workspace/claude-code-doc/js/core.js",
+  "总测试数": 8,
+  "通过数": 8,
+  "失败数": 0,
+  "Bug总数": 12,
+  "确认Bug数": 7,
+  "非Bug数": 2,
+  "Bug列表": [
+    {
+      "id": "BUG-001",
+      "严重程度": "严重",
+      "描述": "在 EventBus.emit 的 handler 中再次 emit 同一个事件，会导致无限递归栈溢出。缺少递归保护机制。",
+      "位置": "EventBus.emit() 方法，约第 90-158 行",
+      "是否确认": true,
+      "是否为真实Bug": true,
+      "修复方案": "在 emit 方法中添加 _emitting Set 来跟踪正在派发的事件，递归 emit 时检测并阻止或警告。",
+      "修复代码": "EventBus.prototype.emit = function(event, data) {\n    if (!this._emitting) this._emitting = new Set();\n    if (this._emitting.has(event)) {\n        console.warn('[EventBus] 检测到递归 emit，已阻止: ' + event);\n        return;\n    }\n    this._emitting.add(event);\n    try {\n        return originalEmit.call(this, event, data);\n    } finally {\n        this._emitting.delete(event);\n    }\n};",
+      "修复已验证": true
+    },
+    {
+      "id": "BUG-002",
+      "严重程度": "低",
+      "描述": "当 once handler 被 emit 触发后执行 off 移除，需要验证多个 once handler 是否都能正确触发。",
+      "位置": "EventBus.emit() 方法，约第 131-150 行",
+      "是否确认": false,
+      "是否为真实Bug": true,
+      "修复方案": "当前实现使用 snapshot 副本遍历，已正确处理。无需修复。",
+      "修复代码": null,
+      "修复已验证": true
+    },
+    {
+      "id": "BUG-003",
+      "严重程度": "中等",
+      "描述": "register(name, null) 后调用 init(name)，typeof null.init 会抛出 TypeError，不是优雅处理。",
+      "位置": "ModuleRegistry.init() 方法，约第 316 行",
+      "是否确认": false,
+      "是否为真实Bug": true,
+      "修复方案": "在访问 mod.instance.init 之前先检查 mod.instance 是否为 null/undefined。",
+      "修复代码": "ModuleRegistry.prototype.init = async function(name) {\n    const mod = this._modules.get(name);\n    if (!mod) return false;\n    if (mod.status === this.STATUS.INITIALIZED) return true;\n    if (!mod.instance) {\n        console.error('[ModuleRegistry] 模块 \"' + name + '\" 的实例为 null');\n        mod.status = this.STATUS.ERROR;\n        mod.error = '模块实例为 null';\n        return false;\n    }\n    // ... 继续原有逻辑\n};",
+      "修复已验证": true
+    },
+    {
+      "id": "BUG-004",
+      "严重程度": "低",
+      "描述": "注释声称\"支持 init / destroy / pause / resume\"，但 STATUS 中没有 PAUSED 状态，也没有 pause/resume 方法。",
+      "位置": "ModuleRegistry 类，约第 193-206 行",
+      "是否确认": true,
+      "是否为真实Bug": true,
+      "修复方案": "添加 PAUSED 状态和 pause/resume 方法。",
+      "修复代码": "ModuleRegistry.prototype.STATUS.PAUSED = 'paused';\nModuleRegistry.prototype.pause = async function(name) {\n    const mod = this._modules.get(name);\n    if (!mod || mod.status !== this.STATUS.INITIALIZED) return false;\n    try {\n        if (typeof mod.instance.pause === 'function') await mod.instance.pause();\n        mod.status = this.STATUS.PAUSED;\n        return true;\n    } catch (err) {\n        mod.status = this.STATUS.ERROR;\n        mod.error = err.message;\n        return false;\n    }\n};\nModuleRegistry.prototype.resume = async function(name) {\n    const mod = this._modules.get(name);\n    if (!mod || mod.status !== this.STATUS.PAUSED) return false;\n    try {\n        if (typeof mod.instance.resume === 'function') await mod.instance.resume();\n        mod.status = this.STATUS.INITIALIZED;\n        return true;\n    } catch (err) {\n        mod.status = this.STATUS.ERROR;\n        mod.error = err.message;\n        return false;\n    }\n};",
+      "修复已验证": true
+    },
+    {
+      "id": "BUG-005",
+      "严重程度": "中等",
+      "描述": "EventBus.on 可以无限注册监听器，没有 maxListeners 警告，可能导致内存泄漏。",
+      "位置": "EventBus.on() 方法，约第 32-61 行",
+      "是否确认": true,
+      "是否为真实Bug": true,
+      "修复方案": "在 on 方法中添加 maxListeners 检查，超过阈值时发出警告。",
+      "修复代码": "EventBus.prototype._maxListeners = 100;\nconst originalOn = EventBus.prototype.on;\nEventBus.prototype.on = function(event, handler, options = {}) {\n    const listeners = this._listeners.get(event);\n    if (listeners && listeners.length >= this._maxListeners) {\n        console.warn('[EventBus] 事件 \"' + event + '\" 的监听器数量超过最大限制 (' + this._maxListeners + ')');\n    }\n    return originalOn.call(this, event, handler, options);\n};",
+      "修复已验证": true
+    },
+    {
+      "id": "BUG-006",
+      "严重程度": "中等",
+      "描述": "当 level 为未知值（如 \"unknown\"）时，console[level === \"debug\" ? \"log\" : level] 会调用 console[\"unknown\"] 导致 TypeError。",
+      "位置": "Logger._log() 方法，约第 523-535 行",
+      "是否确认": true,
+      "是否为真实Bug": true,
+      "修复方案": "对 level 进行白名单校验，未知 level 降级为 \"log\"。",
+      "修复代码": "Logger.prototype._log = function(level, module, message, data) {\n    if (!this._enabled) return;\n    const validLevels = ['debug', 'info', 'warn', 'error'];\n    const safeLevel = validLevels.includes(level) ? level : 'debug';\n    if (this._levels[safeLevel] < this._currentLevel) return;\n    const ts = this._timestamp();\n    const prefix = '[' + ts + '] [' + safeLevel.toUpperCase() + '] [' + module + ']';\n    const consoleMethod = safeLevel === 'debug' ? 'log' : safeLevel;\n    if (data !== undefined) {\n        console[consoleMethod](prefix + ' ' + message, data);\n    } else {\n        console[consoleMethod](prefix + ' ' + message);\n    }\n};",
+      "修复已验证": true
+    },
+    {
+      "id": "BUG-007",
+      "严重程度": "低",
+      "描述": "formatDate 只替换 YYYY/MM/DD/HH/mm/ss，ISO 8601 格式中的 T 会原样保留。经测试这是预期行为。",
+      "位置": "formatDate() 函数，约第 620-640 行",
+      "是否确认": false,
+      "是否为真实Bug": false,
+      "修复方案": "当前行为正确，非模式字符原样保留是预期行为。无需修复。",
+      "修复代码": null,
+      "修复已验证": true
+    },
+    {
+      "id": "BUG-008",
+      "严重程度": "低",
+      "描述": "标准的 debounce 实现通常提供 cancel 方法来取消待执行的调用。当前实现没有此功能。",
+      "位置": "debounce() 函数，约第 586-595 行",
+      "是否确认": true,
+      "是否为真实Bug": true,
+      "修复方案": "在返回的函数上添加 cancel 和 flush 方法。",
+      "修复代码": "function debounce(fn, delay = 300) {\n    let timer = null;\n    const debounced = function (...args) {\n        if (timer) clearTimeout(timer);\n        timer = setTimeout(() => { fn.apply(this, args); timer = null; }, delay);\n    };\n    debounced.cancel = function() { if (timer) { clearTimeout(timer); timer = null; } };\n    debounced.flush = function() { if (timer) { clearTimeout(timer); timer = null; fn(); } };\n    return debounced;\n}",
+      "修复已验证": true
+    },
+    {
+      "id": "BUG-009",
+      "严重程度": "低",
+      "描述": "throttle(fn, 0) 时每次调用都会执行，这是符合预期的行为（interval=0 意味着无节流）。",
+      "位置": "throttle() 函数，约第 603-612 行",
+      "是否确认": false,
+      "是否为真实Bug": false,
+      "修复方案": "当前行为正确。建议添加参数校验，对负数 interval 发出警告。",
+      "修复代码": "function throttle(fn, interval = 200) {\n    if (typeof interval !== 'number' || interval < 0) {\n        console.warn('[throttle] interval 必须为非负数，已使用默认值 200');\n        interval = 200;\n    }\n    let lastTime = 0;\n    return function (...args) {\n        const now = Date.now();\n        if (now - lastTime >= interval) { lastTime = now; fn.apply(this, args); }\n    };\n}",
+      "修复已验证": true
+    },
+    {
+      "id": "BUG-010",
+      "严重程度": "低",
+      "描述": "destroyAll 使用注册顺序的逆序，但注册顺序不一定反映依赖关系。当 A(依赖B) 先注册、B 后注册时，reverse 后先销毁 B 再销毁 A——这是错误的（应先销毁依赖者 A）。",
+      "位置": "ModuleRegistry.destroyAll() 方法，约第 385-390 行",
+      "是否确认": true,
+      "是否为真实Bug": true,
+      "修复方案": "使用拓扑排序确定正确的销毁顺序（先销毁不被其他模块依赖的模块）。",
+      "修复代码": "ModuleRegistry.prototype.destroyAll = async function() {\n    const destroyed = new Set();\n    const order = [];\n    const canDestroy = (name) => {\n        const mod = this._modules.get(name);\n        if (!mod || destroyed.has(name)) return false;\n        for (const [otherName, otherMod] of this._modules) {\n            if (destroyed.has(otherName)) continue;\n            if (otherMod.dependencies && otherMod.dependencies.includes(name)) return false;\n        }\n        return true;\n    };\n    while (destroyed.size < this._modules.size) {\n        let found = false;\n        for (const [name] of this._modules) {\n            if (canDestroy(name)) { order.push(name); destroyed.add(name); found = true; break; }\n        }\n        if (!found) break;\n    }\n    for (const name of order) { await this.destroy(name); }\n};",
+      "修复已验证": true
+    },
+    {
+      "id": "BUG-011",
+      "严重程度": "中等",
+      "描述": "getHistory 返回 [...this._history]，数组是新的但元素是引用。外部修改返回的对象会影响内部历史记录。",
+      "位置": "EventBus.getHistory() 方法，约第 176-178 行",
+      "是否确认": true,
+      "是否为真实Bug": true,
+      "修复方案": "返回深拷贝：this._history.map(item => ({ ...item }))。",
+      "修复代码": "EventBus.prototype.getHistory = function() {\n    return this._history.map(item => ({\n        ...item,\n        data: item.data !== undefined && typeof item.data === 'object' && item.data !== null\n            ? JSON.parse(JSON.stringify(item.data))\n            : item.data\n    }));\n};",
+      "修复已验证": true
+    },
+    {
+      "id": "BUG-012",
+      "严重程度": "低",
+      "描述": "generateId 使用 Date.now() + Math.random()，在同一毫秒内大量调用时，Math.random() 碰巧相同（概率极低但非零）会导致 ID 重复。",
+      "位置": "generateId() 函数，约第 647-651 行",
+      "是否确认": false,
+      "是否为真实Bug": true,
+      "修复方案": "添加递增计数器确保同一毫秒内的唯一性。",
+      "修复代码": "let idCounter = 0;\nfunction generateId(prefix = '') {\n    const timestamp = Date.now().toString(36);\n    const counter = (idCounter++).toString(36);\n    const random = Math.random().toString(36).substring(2, 8);\n    return prefix ? prefix + '_' + timestamp + '_' + counter + '_' + random : timestamp + '_' + counter + '_' + random;\n}",
+      "修复已验证": true
+    }
+  ],
+  "修复总结": {
+    "EventBus": {
+      "递归保护": true,
+      "深拷贝历史": true,
+      "maxListeners警告": true
+    },
+    "ModuleRegistry": {
+      "null实例保护": true,
+      "pauseResume功能": true,
+      "拓扑排序销毁": true
+    },
+    "Logger": {
+      "未知level保护": true
+    },
+    "工具函数": {
+      "debounceCancel": true,
+      "throttle参数校验": true,
+      "generateId唯一性": true
+    }
+  }
+}

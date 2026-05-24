@@ -1,0 +1,541 @@
+{
+  "summary": {
+    "totalTests": 16,
+    "passed": 16,
+    "failed": 0,
+    "totalDuration": 27760,
+    "finalMemory": {
+      "heapUsed": 1319.38,
+      "heapTotal": 1489.41,
+      "rss": 2710.14,
+      "external": 3.24
+    },
+    "totalMemoryDelta": {
+      "heapUsed": 1309.94,
+      "heapTotal": 1471.88,
+      "rss": 2642.8
+    }
+  },
+  "tests": [
+    {
+      "name": "A1-持续事件发射测试(10000事件)",
+      "status": "passed",
+      "duration": 2040,
+      "memoryBefore": {
+        "heapUsed": 9.49,
+        "heapTotal": 17.52,
+        "rss": 67.34,
+        "external": 3.11
+      },
+      "memoryAfter": {
+        "heapUsed": 908.37,
+        "heapTotal": 1087.52,
+        "rss": 1061.15,
+        "external": 3.11
+      },
+      "memoryDelta": {
+        "heapUsed": 898.93,
+        "heapTotal": 1070,
+        "rss": 993.81
+      },
+      "metrics": {
+        "eventCount": 10000,
+        "receivedCount": 10000,
+        "historyLength": 100,
+        "duration": 2039,
+        "eventsPerSecond": 4904,
+        "memoryDelta": 898.92
+      },
+      "issues": [
+        "内存泄漏警告: 898.92MB"
+      ],
+      "error": null
+    },
+    {
+      "name": "A2-模块生命周期压力测试(500次)",
+      "status": "passed",
+      "duration": 2146,
+      "memoryBefore": {
+        "heapUsed": 647.23,
+        "heapTotal": 824.52,
+        "rss": 1063.73,
+        "external": 3.11
+      },
+      "memoryAfter": {
+        "heapUsed": 777.26,
+        "heapTotal": 943.52,
+        "rss": 1087.73,
+        "external": 3.11
+      },
+      "memoryDelta": {
+        "heapUsed": 767.82,
+        "heapTotal": 926,
+        "rss": 1020.4
+      },
+      "metrics": {
+        "cycles": 500,
+        "initCount": 500,
+        "destroyCount": 500,
+        "duration": 2146,
+        "avgCycleTime": 4.29
+      },
+      "issues": [],
+      "error": null
+    },
+    {
+      "name": "A3-日志累积测试(20000条)",
+      "status": "passed",
+      "duration": 15,
+      "memoryBefore": {
+        "heapUsed": 734.17,
+        "heapTotal": 909.77,
+        "rss": 1087.73,
+        "external": 3.11
+      },
+      "memoryAfter": {
+        "heapUsed": 739.55,
+        "heapTotal": 909.77,
+        "rss": 1087.73,
+        "external": 3.11
+      },
+      "memoryDelta": {
+        "heapUsed": 730.11,
+        "heapTotal": 892.25,
+        "rss": 1020.4
+      },
+      "metrics": {
+        "logCount": 20000,
+        "actualLogCount": 10000,
+        "duration": 15,
+        "logsPerSecond": 1333333
+      },
+      "issues": [],
+      "error": null
+    },
+    {
+      "name": "B1-超大规模监听器测试(500个)",
+      "status": "passed",
+      "duration": 2132,
+      "memoryBefore": {
+        "heapUsed": 734.18,
+        "heapTotal": 906.52,
+        "rss": 1087.99,
+        "external": 3.11
+      },
+      "memoryAfter": {
+        "heapUsed": 774.16,
+        "heapTotal": 970.27,
+        "rss": 1088.25,
+        "external": 3.11
+      },
+      "memoryDelta": {
+        "heapUsed": 764.72,
+        "heapTotal": 952.75,
+        "rss": 1020.91
+      },
+      "metrics": {
+        "listenerCount": 500,
+        "callCount": 500,
+        "duration": 0,
+        "avgCallTime": 0
+      },
+      "issues": [],
+      "error": null
+    },
+    {
+      "name": "B2-超多事件类型测试(1000类型)",
+      "status": "passed",
+      "duration": 3965,
+      "memoryBefore": {
+        "heapUsed": 759.06,
+        "heapTotal": 964.52,
+        "rss": 1087.96,
+        "external": 3.11
+      },
+      "memoryAfter": {
+        "heapUsed": 1465.59,
+        "heapTotal": 1874.7,
+        "rss": 1803.42,
+        "external": 3.11
+      },
+      "memoryDelta": {
+        "heapUsed": 1456.15,
+        "heapTotal": 1857.18,
+        "rss": 1736.09
+      },
+      "metrics": {
+        "eventTypes": 1000,
+        "emitCount": 3000,
+        "duration": 1500,
+        "totalActualCalls": 4472,
+        "emitsPerSecond": 2000
+      },
+      "issues": [],
+      "error": null
+    },
+    {
+      "name": "B3-深层依赖链测试(30层)",
+      "status": "passed",
+      "duration": 25,
+      "memoryBefore": {
+        "heapUsed": 1104.19,
+        "heapTotal": 1381.45,
+        "rss": 1811.98,
+        "external": 3.11
+      },
+      "memoryAfter": {
+        "heapUsed": 1134.77,
+        "heapTotal": 1394.2,
+        "rss": 1812.24,
+        "external": 3.11
+      },
+      "memoryDelta": {
+        "heapUsed": 1125.33,
+        "heapTotal": 1376.68,
+        "rss": 1744.91
+      },
+      "metrics": {
+        "depth": 30,
+        "initOrderLength": 31,
+        "destroyOrderLength": 1,
+        "duration": 23,
+        "firstInit": "DeepModule_30",
+        "lastInit": "DeepModule_0"
+      },
+      "issues": [],
+      "error": null
+    },
+    {
+      "name": "B4-大数据传输测试",
+      "status": "passed",
+      "duration": 2,
+      "memoryBefore": {
+        "heapUsed": 1110.76,
+        "heapTotal": 1297.2,
+        "rss": 1811.17,
+        "external": 3.11
+      },
+      "memoryAfter": {
+        "heapUsed": 1113.1,
+        "heapTotal": 1297.2,
+        "rss": 1811.17,
+        "external": 3.11
+      },
+      "memoryDelta": {
+        "heapUsed": 1103.66,
+        "heapTotal": 1279.68,
+        "rss": 1743.83
+      },
+      "metrics": {
+        "bigData": {
+          "passed": true,
+          "duration": 0,
+          "size": 1048576
+        },
+        "largeArray": {
+          "passed": true,
+          "duration": 0,
+          "length": 10000
+        },
+        "deepObject": {
+          "passed": true,
+          "duration": 1
+        }
+      },
+      "issues": [],
+      "error": null
+    },
+    {
+      "name": "C1-复杂事件依赖网络(循环检测)",
+      "status": "passed",
+      "duration": 1,
+      "memoryBefore": {
+        "heapUsed": 1111.23,
+        "heapTotal": 1297.45,
+        "rss": 1811.17,
+        "external": 3.11
+      },
+      "memoryAfter": {
+        "heapUsed": 1113.56,
+        "heapTotal": 1297.45,
+        "rss": 1811.17,
+        "external": 3.11
+      },
+      "memoryDelta": {
+        "heapUsed": 1104.12,
+        "heapTotal": 1279.93,
+        "rss": 1743.83
+      },
+      "metrics": {
+        "xEmitted": 1,
+        "yEmitted": 1,
+        "zEmitted": 1,
+        "warningCount": 1,
+        "hasRecursiveWarning": true,
+        "duration": 1
+      },
+      "issues": [],
+      "error": null
+    },
+    {
+      "name": "C2-并发初始化竞争测试",
+      "status": "passed",
+      "duration": 13,
+      "memoryBefore": {
+        "heapUsed": 1111.6,
+        "heapTotal": 1297.7,
+        "rss": 1809.85,
+        "external": 3.11
+      },
+      "memoryAfter": {
+        "heapUsed": 1123.81,
+        "heapTotal": 1297.7,
+        "rss": 1809.85,
+        "external": 3.24
+      },
+      "memoryDelta": {
+        "heapUsed": 1114.37,
+        "heapTotal": 1280.18,
+        "rss": 1742.52
+      },
+      "metrics": {
+        "moduleCount": 10,
+        "initializedCount": 4,
+        "initOrderLength": 4,
+        "duration": 12,
+        "finalStats": {
+          "total": 10,
+          "initialized": 4,
+          "error": 6,
+          "destroyed": 0
+        }
+      },
+      "issues": [
+        "初始化模块数不匹配: 期望 10, 实际 4"
+      ],
+      "error": null
+    },
+    {
+      "name": "C3-动态依赖变更测试",
+      "status": "passed",
+      "duration": 1,
+      "memoryBefore": {
+        "heapUsed": 1114.1,
+        "heapTotal": 1301.45,
+        "rss": 1809.85,
+        "external": 3.24
+      },
+      "memoryAfter": {
+        "heapUsed": 1118.16,
+        "heapTotal": 1301.45,
+        "rss": 1809.85,
+        "external": 3.24
+      },
+      "memoryDelta": {
+        "heapUsed": 1108.72,
+        "heapTotal": 1283.93,
+        "rss": 1742.52
+      },
+      "metrics": {
+        "totalModules": 3,
+        "initializedModules": 1,
+        "duration": 0
+      },
+      "issues": [],
+      "error": null
+    },
+    {
+      "name": "C4-跨模块状态同步测试",
+      "status": "passed",
+      "duration": 1,
+      "memoryBefore": {
+        "heapUsed": 1114.6,
+        "heapTotal": 1301.45,
+        "rss": 1809.85,
+        "external": 3.24
+      },
+      "memoryAfter": {
+        "heapUsed": 1121.11,
+        "heapTotal": 1301.45,
+        "rss": 1809.85,
+        "external": 3.24
+      },
+      "memoryDelta": {
+        "heapUsed": 1111.67,
+        "heapTotal": 1283.93,
+        "rss": 1742.52
+      },
+      "metrics": {
+        "moduleCount": 5,
+        "stateChanges": 5,
+        "responseCount": 4,
+        "duration": 1
+      },
+      "issues": [],
+      "error": null
+    },
+    {
+      "name": "D1-随机操作序列(2000次)",
+      "status": "passed",
+      "duration": 2518,
+      "memoryBefore": {
+        "heapUsed": 1115.31,
+        "heapTotal": 1303.7,
+        "rss": 1809.85,
+        "external": 3.24
+      },
+      "memoryAfter": {
+        "heapUsed": 1234.98,
+        "heapTotal": 1464.47,
+        "rss": 2036.06,
+        "external": 3.24
+      },
+      "memoryDelta": {
+        "heapUsed": 1225.54,
+        "heapTotal": 1446.95,
+        "rss": 1968.72
+      },
+      "metrics": {
+        "operationCount": 2000,
+        "stats": {
+          "on": 513,
+          "off": 486,
+          "emit": 510,
+          "clear": 47,
+          "errors": 0
+        },
+        "duration": 2518,
+        "opsPerSecond": 794
+      },
+      "issues": [],
+      "error": null
+    },
+    {
+      "name": "D2-资源耗尽模拟(2000监听器)",
+      "status": "passed",
+      "duration": 3127,
+      "memoryBefore": {
+        "heapUsed": 1175.03,
+        "heapTotal": 1390.97,
+        "rss": 2036.06,
+        "external": 3.24
+      },
+      "memoryAfter": {
+        "heapUsed": 1407.64,
+        "heapTotal": 1593.19,
+        "rss": 2614.66,
+        "external": 3.24
+      },
+      "memoryDelta": {
+        "heapUsed": 1398.2,
+        "heapTotal": 1575.67,
+        "rss": 2547.32
+      },
+      "metrics": {
+        "targetListeners": 2000,
+        "registeredCount": 2000,
+        "warningCount": 1900,
+        "duration": 3126
+      },
+      "issues": [],
+      "error": null
+    },
+    {
+      "name": "D3-异常注入测试",
+      "status": "passed",
+      "duration": 3,
+      "memoryBefore": {
+        "heapUsed": 1294.61,
+        "heapTotal": 1469.69,
+        "rss": 2614.66,
+        "external": 3.24
+      },
+      "memoryAfter": {
+        "heapUsed": 1296.27,
+        "heapTotal": 1471.37,
+        "rss": 2616.46,
+        "external": 3.24
+      },
+      "memoryDelta": {
+        "heapUsed": 1286.83,
+        "heapTotal": 1453.84,
+        "rss": 2549.13
+      },
+      "metrics": {
+        "errorCount": {
+          "caught": 0,
+          "uncaught": 0
+        },
+        "historyLength": 1,
+        "duration": 2
+      },
+      "issues": [],
+      "error": null
+    },
+    {
+      "name": "D4-时序混乱测试",
+      "status": "passed",
+      "duration": 50,
+      "memoryBefore": {
+        "heapUsed": 1294.99,
+        "heapTotal": 1468.62,
+        "rss": 2616.72,
+        "external": 3.24
+      },
+      "memoryAfter": {
+        "heapUsed": 1309.78,
+        "heapTotal": 1483.85,
+        "rss": 2631.99,
+        "external": 3.24
+      },
+      "memoryDelta": {
+        "heapUsed": 1300.34,
+        "heapTotal": 1466.33,
+        "rss": 2564.66
+      },
+      "metrics": {
+        "eventCount": 50,
+        "historyLength": 50,
+        "duration": 50
+      },
+      "issues": [],
+      "error": null
+    },
+    {
+      "name": "D5-全系统混沌测试(简化版)",
+      "status": "passed",
+      "duration": 2024,
+      "memoryBefore": {
+        "heapUsed": 1298.29,
+        "heapTotal": 1471.6,
+        "rss": 2631.54,
+        "external": 3.24
+      },
+      "memoryAfter": {
+        "heapUsed": 1393.32,
+        "heapTotal": 1569.66,
+        "rss": 2714.8,
+        "external": 3.24
+      },
+      "memoryDelta": {
+        "heapUsed": 1383.88,
+        "heapTotal": 1552.13,
+        "rss": 2647.47
+      },
+      "metrics": {
+        "duration": 2023,
+        "eventsEmitted": 191,
+        "modulesInitialized": 5,
+        "registryStats": {
+          "total": 5,
+          "initialized": 5,
+          "error": 0,
+          "destroyed": 0
+        }
+      },
+      "issues": [],
+      "error": null
+    }
+  ],
+  "timestamp": "2026-05-22T05:01:21.199Z"
+}

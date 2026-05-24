@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Claude Code 架构深度解析 - 基于 v2.1.88 源码快照的全面技术文档">
+    <meta name="keywords" content="Claude Code, Anthropic, AI, Architecture, 源码分析">
+    <meta name="author" content="Claude Code Architecture Team">
+    <meta name="theme-color" content="#e87e2f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Claude Code Doc">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Claude Code 架构深度解析">
+    <meta property="og:description" content="基于 v2.1.88 源码快照的全面技术文档">
+    <meta property="og:type" content="website">
+    
+    <title>Claude Code 架构深度解析 v7.0</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='24' fill='%230a0a12'/><text x='96' y='128' font-size='100' text-anchor='middle' fill='%23e87e2f'>🧠</text></svg>">
+    
+    <!-- External Libraries (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js" defer></script>
+    
+    <!-- Module CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- Skip Links for Accessibility -->
+<div class="skip-links no-print">
+    <a href="#main" class="skip-link">跳转到主要内容</a>
+    <a href="#sidebar" class="skip-link">跳转到导航</a>
+    <a href="#search" class="skip-link">跳转到搜索</a>
+</div>
+
+<div class="layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar no-print" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">🧠</div>
+            <div>
+                <div class="sidebar-title">Claude Code</div>
+                <div class="sidebar-subtitle">架构深度解析 v2.1.88</div>
+            </div>
+        </div>
+        
+        <ul class="sidebar-nav">
+            <li><a href="#overview"><span class="nav-icon">🏗️</span><span data-i18n="nav.overview">全局概览</span></a></li>
+            <li><a href="#master-loop"><span class="nav-icon">🔄</span><span data-i18n="nav.loop">核心循环</span></a></li>
+            <li><a href="#tools"><span class="nav-icon">🔧</span><span data-i18n="nav.tools">工具系统</span><span class="nav-badge">40+</span></a></li>
+            <li><a href="#context"><span class="nav-icon">📦</span><span data-i18n="nav.context">上下文管理</span></a></li>
+            <li><a href="#subagent"><span class="nav-icon">🤖</span><span data-i18n="nav.subagent">子代理架构</span></a></li>
+            <li><a href="#permission"><span class="nav-icon">🔒</span><span data-i18n="nav.permissions">权限安全</span></a></li>
+            <li><a href="#plugin"><span class="nav-icon">🧩</span><span data-i18n="nav.plugins">插件生态</span></a></li>
+            <li><a href="#dataflow"><span class="nav-icon">📊</span><span data-i18n="nav.dataflow">数据流图</span></a></li>
+            <li><a href="#session"><span class="nav-icon">💾</span><span data-i18n="nav.lifecycle">会话生命周期</span></a></li>
+            <li><a href="#directory"><span class="nav-icon">📂</span><span data-i18n="nav.directory">目录结构</span></a></li>
+            <li><a href="#tech-stack"><span class="nav-icon">⚡</span><span data-i18n="nav.techstack">技术栈</span></a></li>
+            <li><a href="#hidden"><span class="nav-icon">🕵️</span><span data-i18n="nav.hidden">隐藏功能</span></a></li>
+            <li><a href="#compare"><span class="nav-icon">⚔️</span><span data-i18n="nav.comparison">竞品对比</span></a></li>
+            <li><a href="#philosophy"><span class="nav-icon">💡</span><span data-i18n="nav.philosophy">设计哲学</span></a></li>
+        </ul>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">参考资料</div>
+            <ul class="sidebar-nav">
+                <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank" rel="noopener"><span class="nav-icon">📄</span>官方工程博客</a></li>
+                <li><a href="https://arxiv.org/pdf/2604.14228" target="_blank" rel="noopener"><span class="nav-icon">📚</span>arXiv 论文</a></li>
+                <li><a href="https://code.claude.com/docs" target="_blank" rel="noopener"><span class="nav-icon">📖</span>官方文档</a></li>
+            </ul>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">工具</div>
+            <ul class="sidebar-nav">
+                <li><a href="#" id="dashboard-nav-link"><span class="nav-icon">📊</span><span data-i18n="nav.dashboard">数据面板</span></a></li>
+                <li><a href="#" id="run-tests-nav-link"><span class="nav-icon">🧪</span><span data-i18n="test.run">运行测试</span></a></li>
+                <li>
+                    <button class="sidebar-btn" id="notes-panel-btn" title="笔记">
+                        📝 <span data-i18n="nav.notes">笔记</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Sidebar Toggle -->
+    <button class="sidebar-toggle no-print" id="sidebarToggle" aria-label="切换侧边栏">◀</button>
+
+    <!-- Main Content -->
+    <main class="main" id="main">
+        
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Claude Code 架构深度解析</h1>
+                <button class="explorer-open-btn no-print" id="explorer-open-btn">
+                    🏗️ <span data-i18n="explorer.open">探索架构</span>
+                </button>
+                <p class="subtitle">基于公开源码快照与官方文档，全面解读 Anthropic 智能编程助手的核心架构、工作流程、内部机制与设计哲学</p>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="num">~1,900</div>
+                        <div class="label">源码文件</div>
+                    </div>
+                    <div class="stat">
+                        <div class="num">~51万</div>
+                        <div class="label">代码行数</div>
+                    </div>
+                    <div class="stat">
+                        <div class="num">40+</div>
+                        <div class="label">内置工具</div>
+                    </div>
+                    <div class="stat">
+                        <div class="num">80+</div>
+                        <div class="label">斜杠命令</div>
+                    </div>
+                    <div class="stat">
+                        <div class="num">200K</div>
+                        <div class="label">Token 上下文</div>
+                    </div>
+                    <div class="stat">
+                        <div class="num">108</div>
+                        <div class="label">隐藏模块</div>
+                    </div>
+                </div>
+                <div class="version-badge">📦 npm: @anthropic-ai/claude-code v2.1.88 | 源码快照: 2026-03-31</div>
+            </div>
+        </section>
+
+        <div class="container">
+
+            <!-- Section 1: Overview -->
+            <section class="section" id="overview">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(232,126,47,0.15);">🏗️</div>
+                    <div>
+                        <h2>全局架构概览</h2>
+                        <p>Claude Code 是什么？它如何组织代码？核心组件有哪些？</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 一句话理解</h3>
+                    <p>Claude Code <strong>不是一个新 AI 模型</strong>，而是一个<strong>编排层（Orchestration Layer）</strong>。它把 Claude 大模型（Opus / Sonnet / Haiku）包装起来，赋予它读写文件、执行命令、搜索代码、启动子代理等能力，通过一个<strong>简单的 while 循环</strong>不断调用工具，直到任务完成。</p>
+                    <div class="info-box tip">
+                        <strong>💡 核心洞察：</strong>Claude Code 没有意图分类器、没有任务路由器、没有 RAG 管道、没有 DAG 编排器。模型本身决定一切——何时调用工具、调用哪个工具、何时完成。这就是 Anthropic 所说的 <strong>"Less scaffolding, more model"</strong>（少搭脚手架，多信模型）。
+                    </div>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="diagram-title">图 1：Claude Code 全局架构图</div>
+                    <div class="mermaid">
+graph TB
+    DEV["👤 开发者<br/>输入自然语言指令"]
+    
+    subgraph CC["🧠 Claude Code — 编排层"]
+        direction TB
+        LOOP["🔄 核心循环<br/>while(tool_call)"]
+        MODEL["🤖 Claude 模型<br/>Opus / Sonnet / Haiku"]
+        TOOLS["🔧 工具集<br/>Read · Edit · Bash · Task..."]
+        PERM["🔒 权限系统<br/>7 种模式 + ML 分类器"]
+        CTX["📦 上下文管理<br/>200K Token 预算"]
+        LOOP --> MODEL
+        MODEL --> TOOLS
+        TOOLS --> LOOP
+        PERM -.-> TOOLS
+        CTX -.-> MODEL
+    end
+    
+    subgraph ENV["💻 开发环境"]
+        FS["📁 文件系统"]
+        GIT["🔀 Git 仓库"]
+        SHELL["🖥️ Shell / CLI"]
+        MCP["🔌 MCP 服务器"]
+    end
+    
+    subgraph EXT["🌐 外部服务"]
+        API["Anthropic API<br/>(流式响应)"]
+        IDE["IDE 集成<br/>VS Code / JetBrains"]
+        TELE["📊 遥测分析<br/>GrowthBook"]
+    end
+    
+    DEV --> LOOP
+    TOOLS --> FS
+    TOOLS --> GIT
+    TOOLS --> SHELL
+    TOOLS --> MCP
+    MODEL --> API
+    CC --> IDE
+    CC --> TELE
+
+    style CC fill:#1a1a2e,stroke:#e87e2f,stroke-width:2px,color:#e8e8f0
+    style ENV fill:#16213e,stroke:#6db3f2,stroke-width:1px,color:#e8e8f0
+    style EXT fill:#16213e,stroke:#7bc47f,stroke-width:1px,color:#e8e8f0
+    style DEV fill:#e87e2f,color:#fff
+    style LOOP fill:#e87e2f,color:#fff
+    style MODEL fill:#f5e6d3,color:#333
+    style TOOLS fill:#6db3f2,color:#fff
+    style PERM fill:#e06c75,color:#fff
+    style CTX fill:#b48ead,color:#fff
+                    </div>
+                    <div class="diagram-label">编排层连接 AI 模型与开发环境，通过工具系统实现代码操作能力</div>
+                </div>
+
+                <div class="card">
+                    <h3>🏛️ 分层架构详解</h3>
+                    <div class="grid-3">
+                        <div>
+                            <h4 style="color:var(--accent-orange);">🖥️ 表示层 (Presentation)</h4>
+                            <p style="color:var(--text-secondary);font-size:0.88em;">
+                                基于 <code>React + Ink</code> 的终端 UI，包含 <strong>140+ 组件</strong>：消息渲染、权限对话框、输入框、设置面板、加载动画等。支持 Vim 模式、主题切换、键盘快捷键。
+                            </p>
+                            <span class="tag tag-orange">React</span>
+                            <span class="tag tag-blue">Ink</span>
+                        </div>
+                        <div>
+                            <h4 style="color:var(--accent-blue);">⚙️ 业务层 (Services)</h4>
+                            <p style="color:var(--text-secondary);font-size:0.88em;">
+                                核心业务逻辑：API 客户端（流式调用+重试）、MCP 连接管理、插件加载器、上下文压缩、权限引擎、遥测分析、OAuth 认证等。
+                            </p>
+                            <span class="tag tag-blue">TypeScript</span>
+                            <span class="tag tag-green">Bun</span>
+                        </div>
+                        <div>
+                            <h4 style="color:var(--accent-green);">🔧 工具层 (Tools)</h4>
+                            <p style="color:var(--text-secondary);font-size:0.88em;">
+                                <strong>40+ 工具</strong>实现：文件读写、Bash 执行、代码搜索、子代理生成、Web 获取、MCP 调用等。每个工具自包含输入 schema、权限模型和执行逻辑。
+                            </p>
+                            <span class="tag tag-green">40+ Tools</span>
+                            <span class="tag tag-purple">Zod</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Master Loop -->
+            <section class="section" id="master-loop">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(232,126,47,0.15);">🔄</div>
+                    <div>
+                        <h2>核心循环 (Master Loop)</h2>
+                        <p>Claude Code 的心脏——一个简单却强大的 while 循环</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📝 伪代码理解</h3>
+                    <div class="code-block">
+<span class="comment">// Claude Code 核心循环伪代码</span>
+<span class="keyword">async function</span> <span class="function">agentLoop</span>(userPrompt: <span class="type">string</span>) {
+  <span class="keyword">const</span> messages = [<span class="function">buildSystemPrompt</span>(), { role: <span class="string">"user"</span>, content: userPrompt }];
+  
+  <span class="keyword">while</span> (<span class="keyword">true</span>) {
+    <span class="comment">// 1. 调用 Claude API (流式响应)</span>
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">streamClaudeAPI</span>(messages);
+    
+    <span class="comment">// 2. 检查是否完成</span>
+    <span class="keyword">if</span> (response.stop_reason === <span class="string">"end_turn"</span>) {
+      <span class="keyword">return</span> response.text;  <span class="comment">// 任务完成！</span>
+    }
+    
+    <span class="comment">// 3. 处理工具调用</span>
+    <span class="keyword">for</span> (<span class="keyword">const</span> toolCall <span class="keyword">of</span> response.tool_calls) {
+      <span class="comment">// 3.1 权限检查</span>
+      <span class="keyword">if</span> (!<span class="keyword">await</span> <span class="function">checkPermission</span>(toolCall)) {
+        <span class="keyword">const</span> approved = <span class="keyword">await</span> <span class="function">askUser</span>(toolCall);
+        <span class="keyword">if</span> (!approved) <span class="keyword">continue</span>;
+      }
+      
+      <span class="comment">// 3.2 执行工具</span>
+      <span class="keyword">const</span> result = <span class="keyword">await</span> <span class="function">executeTool</span>(toolCall);
+      
+      <span class="comment">// 3.3 追加结果到消息历史</span>
+      messages.<span class="function">push</span>({ role: <span class="string">"tool"</span>, content: result });
+    }
+    
+    <span class="comment">// 4. 上下文管理（必要时压缩）</span>
+    <span class="keyword">if</span> (<span class="function">getTokenCount</span>(messages) > <span class="number">150000</span>) {
+      messages = <span class="keyword">await</span> <span class="function">compactContext</span>(messages);
+    }
+  }
+}
+                    </div>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="diagram-title">图 2：核心循环详细流程图</div>
+                    <div class="mermaid">
+flowchart TD
+    START([👤 用户输入指令]) --> BUILD["📝 构建消息<br/>System + User Prompt"]
+    BUILD --> MODEL["🤖 Claude API 调用<br/>(流式响应)"]
+    MODEL --> CHECK{"stop_reason?"}
+    
+    CHECK -->|"end_turn"| DONE(["✅ 返回文本结果<br/>任务完成"])
+    CHECK -->|"tool_use"| TOOLS["📦 提取工具调用"]
+    
+    TOOLS --> LOOP{"遍历每个<br/>tool_call"}
+    
+    LOOP --> PERM{"🔒 权限检查<br/>(ML分类器 + 规则)"}
+    
+    PERM -->|自动通过| EXEC
+    PERM -->|需要确认| ASK["👤 弹出权限对话框"]
+    ASK -->|批准| EXEC
+    ASK -->|拒绝| DENY["🚫 记录拒绝<br/>跳过执行"]
+    
+    EXEC["⚡ 执行工具<br/>(Bash/Read/Edit...)"] --> RESULT["📊 获取工具结果"]
+    DENY --> RESULT
+    
+    RESULT --> APPEND["📤 追加到消息历史"]
+    APPEND --> CTX{"📦 上下文<br/>超过阈值?"}
+    
+    CTX -->|是| COMPACT["🔄 触发压缩<br/>(5层管道)"]
+    CTX -->|否| MODEL
+    COMPACT --> MODEL
+
+    style START fill:#e87e2f,color:#fff
+    style MODEL fill:#f5e6d3,color:#333
+    style EXEC fill:#6db3f2,color:#fff
+    style DONE fill:#7bc47f,color:#333
+    style COMPACT fill:#b48ead,color:#fff
+    style PERM fill:#e06c75,color:#fff
+                    </div>
+                    <div class="diagram-label">Think → Act → Observe → Repeat 的经典 Agent Loop 模式</div>
+                </div>
+
+                <div class="info-box warn">
+                    <strong>⚠️ 常见误解纠正：</strong>Claude Code <strong>没有</strong>意图分类器、<strong>没有</strong>任务路由器、<strong>没有</strong>规划器/执行器分离。模型自己决定一切。这种"极简主义"设计是 Anthropic 有意为之——Claude 的推理能力比任何手工编码的启发式规则都强。
+                </div>
+            </section>
+
+            <!-- Section 3: Tools -->
+            <section class="section" id="tools">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(109,179,242,0.15);">🔧</div>
+                    <div>
+                        <h2>工具系统 (Tool Arsenal)</h2>
+                        <p>Claude Code 的全部能力来自 8 个核心工具 + 扩展生态</p>
+                    </div>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="diagram-title">图 3：工具体系全景图</div>
+                    <div class="mermaid">
+graph TB
+    subgraph CORE["🎯 8 个核心工具 (必需)"]
+        direction LR
+        BASH["🖥️ Bash<br/>万能适配器"]
+        READ["📖 Read<br/>读取文件"]
+        EDIT["✏️ Edit<br/>编辑文件"]
+        WRITE["📝 Write<br/>创建文件"]
+        GREP["🔍 Grep<br/>内容搜索"]
+        GLOB["📂 Glob<br/>文件匹配"]
+        TASK["🤖 Task<br/>子代理"]
+        TODO["📋 TodoWrite<br/>任务追踪"]
+    end
+    
+    subgraph EXT["🌐 扩展工具 (可选)"]
+        WEB["WebFetch"]
+        SEARCH["WebSearch"]
+        MCP_T["MCPTool"]
+        LSP["LSPTool"]
+    end
+    
+    subgraph ADV["⚡ 高级工具 (实验性)"]
+        TEAM["TeamCreate"]
+        PLAN["EnterPlanMode"]
+        CRON["CronCreate"]
+    end
+
+    style CORE fill:#1a1a2e,stroke:#e87e2f,stroke-width:2px,color:#e8e8f0
+    style EXT fill:#16213e,stroke:#6db3f2,stroke-width:1px,color:#e8e8f0
+    style ADV fill:#16213e,stroke:#7bc47f,stroke-width:1px,color:#e8e8f0
+                    </div>
+                    <div class="diagram-label">核心 → 扩展 → 高级 三层工具体系</div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 核心工具详解</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>工具</th>
+                                    <th>用途</th>
+                                    <th>关键行为</th>
+                                    <th>权限级别</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>Bash</code></td>
+                                    <td>执行 Shell 命令</td>
+                                    <td>万能适配器，可运行任何 CLI 工具</td>
+                                    <td><span class="tag tag-red">高危</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>Read</code></td>
+                                    <td>读取文件内容</td>
+                                    <td>最多 2000 行，支持图片/PDF</td>
+                                    <td><span class="tag tag-green">安全</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>Edit</code></td>
+                                    <td>修改现有文件</td>
+                                    <td>基于 diff 的字符串替换</td>
+                                    <td><span class="tag tag-yellow">中等</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>Write</code></td>
+                                    <td>创建/覆写文件</td>
+                                    <td>若文件已存在必须先 Read</td>
+                                    <td><span class="tag tag-yellow">中等</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>Grep</code></td>
+                                    <td>搜索文件内容</td>
+                                    <td>基于 ripgrep，替代 RAG</td>
+                                    <td><span class="tag tag-green">安全</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>Glob</code></td>
+                                    <td>按模式查找文件</td>
+                                    <td>路径匹配，按 mtime 排序</td>
+                                    <td><span class="tag tag-green">安全</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>Task</code></td>
+                                    <td>生成子代理</td>
+                                    <td>隔离上下文，深度限制为 1</td>
+                                    <td><span class="tag tag-blue">特殊</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>TodoWrite</code></td>
+                                    <td>追踪任务进度</td>
+                                    <td>结构化任务管理</td>
+                                    <td><span class="tag tag-green">安全</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Context -->
+            <section class="section" id="context">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(180,142,173,0.15);">📦</div>
+                    <div>
+                        <h2>上下文管理</h2>
+                        <p>200K Token 预算如何分配与压缩</p>
+                    </div>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="diagram-title">图 4：上下文压缩管道</div>
+                    <div class="mermaid">
+flowchart LR
+    A["1️⃣ Token 计数<br/>实时监控"] -->|超过阈值| B["2️⃣ 摘要压缩<br/>提取关键信息"]
+    B --> C["3️⃣ 历史裁剪<br/>移除旧消息"]
+    C --> D["4️⃣ 结果精简<br/>截断工具输出"]
+    D --> E["5️⃣ 紧凑重写<br/>模型辅助压缩"]
+    
+    style A fill:#e87e2f,color:#fff
+    style B fill:#e5c07b,color:#333
+    style C fill:#6db3f2,color:#fff
+    style D fill:#7bc47f,color:#333
+    style E fill:#b48ead,color:#fff
+                    </div>
+                    <div class="diagram-label">5 层渐进式压缩策略，优先保留关键信息</div>
+                </div>
+
+                <div class="card">
+                    <h3>📄 CLAUDE.md 三级配置体系</h3>
+                    <div class="flow-steps">
+                        <div class="flow-step">
+                            <div class="step-num" style="background:rgba(232,126,47,0.2);color:var(--accent-orange);">1</div>
+                            <div class="step-content">
+                                <h4>全局配置 <code>~/.claude/CLAUDE.md</code></h4>
+                                <p>适用于所有项目的个人偏好：编码风格、常用命令、全局规则。</p>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="step-num" style="background:rgba(109,179,242,0.2);color:var(--accent-blue);">2</div>
+                            <div class="step-content">
+                                <h4>项目配置 <code>/CLAUDE.md</code></h4>
+                                <p>项目级约定：架构说明、技术栈、代码规范。可提交到 Git 共享。</p>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="step-num" style="background:rgba(123,196,127,0.2);color:var(--accent-green);">3</div>
+                            <div class="step-content">
+                                <h4>本地配置 <code>/.claude/CLAUDE.md</code></h4>
+                                <p>个人本地配置（加入 .gitignore）：个人工作流、本地路径。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Sub-Agent -->
+            <section class="section" id="subagent">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(123,196,127,0.15);">🤖</div>
+                    <div>
+                        <h2>子代理架构</h2>
+                        <p>通过 Task 工具实现并行、隔离的任务委派</p>
+                    </div>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="diagram-title">图 5：子代理并行执行时序图</div>
+                    <div class="mermaid">
+sequenceDiagram
+    participant U as 👤 用户
+    participant MA as 🧠 主代理
+    participant SA1 as 🤖 子代理A
+    participant SA2 as 🤖 子代理B
+    participant API as 🌐 Claude API
+
+    U->>MA: "分析项目架构"
+    MA->>MA: TodoWrite 规划
+    
+    par 并行启动
+        MA->>SA1: Task(探索代码)
+        MA->>SA2: Task(分析依赖)
+    end
+    
+    SA1->>API: 独立调用
+    SA1-->>MA: 返回摘要
+    
+    SA2->>API: 独立调用
+    SA2-->>MA: 返回摘要
+    
+    Note over MA: 子代理结果不污染<br/>主上下文！深度=1
+    
+    MA->>U: "完整架构分析..."
+                    </div>
+                    <div class="diagram-label">子代理隔离上下文，仅返回摘要给主代理</div>
+                </div>
+
+                <div class="info-box">
+                    <strong>🔑 关键限制：</strong>子代理深度限制为 <strong>1</strong>（depth=1），即子代理不能再生成子代理。只有<strong>摘要结果</strong>会返回给主代理，不会污染主上下文。
+                </div>
+            </section>
+
+            <!-- Section 6: Permission -->
+            <section class="section" id="permission">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(224,108,117,0.15);">🔒</div>
+                    <div>
+                        <h2>权限与安全模型</h2>
+                        <p>7 种权限模式 + ML 分类器 + Hooks 三重防护</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⚙️ 7 种权限模式</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr><th>模式</th><th>行为</th><th>适用场景</th><th>风险</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>default</code></td>
+                                    <td>每次工具调用都询问用户</td>
+                                    <td>日常开发</td>
+                                    <td><span class="tag tag-green">低</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>auto-accept</code></td>
+                                    <td>自动批准所有工具调用</td>
+                                    <td>CI/CD</td>
+                                    <td><span class="tag tag-red">高</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>plan</code></td>
+                                    <td>只允许只读工具</td>
+                                    <td>代码审查</td>
+                                    <td><span class="tag tag-green">低</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>bypassPermissions</code></td>
+                                    <td>绕过所有权限检查</td>
+                                    <td>⚠️ 高危</td>
+                                    <td><span class="tag tag-red">极高</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>yolo</code></td>
+                                    <td>ML 分类器自动判断</td>
+                                    <td>平衡安全与效率</td>
+                                    <td><span class="tag tag-yellow">中</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>custom</code></td>
+                                    <td>用户自定义规则</td>
+                                    <td>精细控制</td>
+                                    <td><span class="tag tag-blue">可控</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>managed</code></td>
+                                    <td>组织管理员远程控制</td>
+                                    <td>企业环境</td>
+                                    <td><span class="tag tag-purple">企业</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 7: Plugin -->
+            <section class="section" id="plugin">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(229,192,123,0.15);">🧩</div>
+                    <div>
+                        <h2>插件生态系统</h2>
+                        <p>5 种组件类型构建可扩展的能力体系</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 5 种组件类型</h3>
+                    <div class="grid-2">
+                        <div>
+                            <h4 style="color:var(--accent-orange);">📄 Commands</h4>
+                            <p style="color:var(--text-secondary);font-size:0.88em;">
+                                斜杠命令，用户输入 <code>/命令名</code> 触发。格式：Markdown + YAML frontmatter。
+                            </p>
+                            <span class="tag tag-orange">用户触发</span>
+                        </div>
+                        <div>
+                            <h4 style="color:var(--accent-blue);">🤖 Agents</h4>
+                            <p style="color:var(--text-secondary);font-size:0.88em;">
+                                代理定义，专用角色，通过 Task 工具委派。格式：Markdown 角色定义。
+                            </p>
+                            <span class="tag tag-blue">Task 委派</span>
+                        </div>
+                        <div>
+                            <h4 style="color:var(--accent-green);">📚 Skills</h4>
+                            <p style="color:var(--text-secondary);font-size:0.88em;">
+                                技能，Claude <strong>自动判断</strong>何时使用。格式：SKILL.md 文件。
+                            </p>
+                            <span class="tag tag-green">自动调用</span>
+                        </div>
+                        <div>
+                            <h4 style="color:var(--accent-purple);">🪝 Hooks</h4>
+                            <p style="color:var(--text-secondary);font-size:0.88em;">
+                                钩子，生命周期事件自动触发。格式：JSON 配置 + 脚本。
+                            </p>
+                            <span class="tag tag-purple">事件触发</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 8: Data Flow -->
+            <section class="section" id="dataflow">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(86,182,194,0.15);">📊</div>
+                    <div>
+                        <h2>数据流图</h2>
+                        <p>信息如何在 Claude Code 内部流转</p>
+                    </div>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="diagram-title">图 6：完整数据流图</div>
+                    <div class="mermaid">
+flowchart TB
+    subgraph INPUT["📥 输入层"]
+        USER["用户输入"]
+        CLAUDE_MD["CLAUDE.md"]
+        MEMORY["Memory 文件"]
+    end
+    
+    subgraph PROCESS["⚙️ 处理层"]
+        CTX_BUILD["上下文构建"]
+        QUERY["QueryEngine"]
+        TOOLS["工具执行"]
+        COMPACT["上下文压缩"]
+    end
+    
+    subgraph OUTPUT["📤 输出层"]
+        RESPONSE["Claude 响应"]
+        FILES["文件变更"]
+        SHELL_OUT["Shell 输出"]
+    end
+    
+    subgraph PERSIST["💾 持久化层"]
+        SESSION["会话存储"]
+        MEM_OUT["记忆提取"]
+        LOGS["遥测日志"]
+    end
+    
+    INPUT --> CTX_BUILD
+    CTX_BUILD --> QUERY
+    QUERY --> RESPONSE
+    RESPONSE -->|tool_use| TOOLS
+    TOOLS --> FILES
+    TOOLS --> SHELL_OUT
+    TOOLS --> CTX_BUILD
+    RESPONSE -->|end_turn| OUTPUT
+    CTX_BUILD -->|超阈值| COMPACT
+    COMPACT --> QUERY
+    SESSION --> CTX_BUILD
+    RESPONSE --> SESSION
+    RESPONSE --> MEM_OUT
+    RESPONSE --> LOGS
+
+    style INPUT fill:#1a1a2e,stroke:#e87e2f,stroke-width:1px,color:#e8e8f0
+    style PROCESS fill:#16213e,stroke:#6db3f2,stroke-width:1px,color:#e8e8f0
+    style OUTPUT fill:#16213e,stroke:#7bc47f,stroke-width:1px,color:#e8e8f0
+    style PERSIST fill:#16213e,stroke:#b48ead,stroke-width:1px,color:#e8e8f0
+                    </div>
+                    <div class="diagram-label">输入 → 处理 → 输出 → 持久化 完整数据流</div>
+                </div>
+            </section>
+
+            <!-- Section 9: Session -->
+            <section class="section" id="session">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(123,196,127,0.15);">💾</div>
+                    <div>
+                        <h2>会话生命周期</h2>
+                        <p>从启动到结束的完整流程</p>
+                    </div>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="diagram-title">图 7：会话生命周期状态机</div>
+                    <div class="mermaid">
+stateDiagram-v2
+    [*] --> INIT: 启动 CLI
+    INIT --> READY: 加载配置
+    READY --> RUNNING: 用户输入
+    
+    state RUNNING {
+        [*] --> QUERYING
+        QUERYING --> TOOL_EXEC: tool_use
+        TOOL_EXEC --> QUERYING: 结果追加
+        QUERYING --> [*]: end_turn
+    }
+    
+    RUNNING --> COMPACTING: 上下文超阈值
+    COMPACTING --> RUNNING: 压缩完成
+    RUNNING --> WAITING: 等待用户
+    WAITING --> RUNNING: 新输入
+    WAITING --> STOPPED: /exit
+    RUNNING --> STOPPED: 任务完成
+    STOPPED --> [*]: 清理资源
+                    </div>
+                    <div class="diagram-label">会话状态转换完整流程</div>
+                </div>
+            </section>
+
+            <!-- Section 10: Directory -->
+            <section class="section" id="directory">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(109,179,242,0.15);">📂</div>
+                    <div>
+                        <h2>源码目录结构</h2>
+                        <p>~1,900 个 TypeScript 文件的组织方式</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="code-block">
+<span class="keyword">src/</span>
+├── <span class="type">main.tsx</span>              <span class="comment"># 入口：CLI 启动 (4,683 行)</span>
+├── <span class="type">QueryEngine.ts</span>        <span class="comment"># 核心：LLM 查询引擎 (46K 行)</span>
+├── <span class="type">query.ts</span>              <span class="comment"># 核心：主代理循环 (785KB!)</span>
+├── <span class="type">Tool.ts</span>               <span class="comment"># 工具接口定义 (29K 行)</span>
+├── <span class="type">tools.ts</span>              <span class="comment"># 工具注册表</span>
+├── <span class="type">commands.ts</span>           <span class="comment"># 斜杠命令注册 (25K 行)</span>
+│
+├── <span class="function">commands/</span>              <span class="comment"># ~80 个斜杠命令</span>
+├── <span class="function">tools/</span>                 <span class="comment"># 40+ 工具实现</span>
+├── <span class="function">components/</span>           <span class="comment"># 140+ React/Ink 组件</span>
+├── <span class="function">services/</span>              <span class="comment"># 业务逻辑层</span>
+├── <span class="function">bridge/</span>                <span class="comment"># IDE 桥接</span>
+├── <span class="function">tasks/</span>                 <span class="comment"># 任务实现</span>
+├── <span class="function">hooks/</span>                 <span class="comment"># 87+ React Hooks</span>
+├── <span class="function">state/</span>                 <span class="comment"># 应用状态管理</span>
+├── <span class="function">types/</span>                 <span class="comment"># TypeScript 类型</span>
+└── <span class="function">utils/</span>                 <span class="comment"># 工具函数</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 11: Tech Stack -->
+            <section class="section" id="tech-stack">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(123,196,127,0.15);">⚡</div>
+                    <div>
+                        <h2>技术栈</h2>
+                        <p>Claude Code 的技术选型</p>
+                    </div>
+                </div>
+
+                <div class="grid-4">
+                    <div class="card" style="text-align:center;">
+                        <div style="font-size:2em;margin-bottom:8px;">📘</div>
+                        <h4>TypeScript</h4>
+                        <p style="color:var(--text-secondary);font-size:0.8em;">strict mode<br/>~51 万行</p>
+                    </div>
+                    <div class="card" style="text-align:center;">
+                        <div style="font-size:2em;margin-bottom:8px;">🥟</div>
+                        <h4>Bun</h4>
+                        <p style="color:var(--text-secondary);font-size:0.8em;">运行时<br/>编译为 Node bundle</p>
+                    </div>
+                    <div class="card" style="text-align:center;">
+                        <div style="font-size:2em;margin-bottom:8px;">⚛️</div>
+                        <h4>React + Ink</h4>
+                        <p style="color:var(--text-secondary);font-size:0.8em;">终端 UI<br/>140+ 组件</p>
+                    </div>
+                    <div class="card" style="text-align:center;">
+                        <div style="font-size:2em;margin-bottom:8px;">🔍</div>
+                        <h4>ripgrep</h4>
+                        <p style="color:var(--text-secondary);font-size:0.8em;">代码搜索<br/>~20ms 响应</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 12: Hidden Features -->
+            <section class="section" id="hidden">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(224,108,117,0.15);">🕵️</div>
+                    <div>
+                        <h2>隐藏功能</h2>
+                        <p>源码分析揭示的未公开特性</p>
+                    </div>
+                </div>
+
+                <div class="info-box danger">
+                    <strong>⚠️ 免责声明：</strong>以下内容基于 v2.1.88 源码快照的逆向分析，属于 Tier 2/3 置信度。请勿在生产环境依赖这些功能。
+                </div>
+
+                <div class="card">
+                    <h3>🎭 模型代号 (Codenames)</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>代号</th><th>对应模型</th><th>状态</th></tr></thead>
+                            <tbody>
+                                <tr><td><code>Capybara</code></td><td>Claude v8 系列</td><td><span class="tag tag-green">当前</span></td></tr>
+                                <tr><td><code>Fennec</code></td><td>Opus 4.6</td><td><span class="tag tag-blue">已发布</span></td></tr>
+                                <tr><td><code>Numbat</code></td><td>下一代模型</td><td><span class="tag tag-purple">开发中</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📦 108 个隐藏模块</h3>
+                    <p style="color:var(--text-secondary);margin-bottom:16px;">
+                        这些模块通过 <code>feature()</code> 特性门控在编译时被移除：
+                    </p>
+                    <div class="grid-3">
+                        <div style="background:var(--bg-code);padding:12px;border-radius:var(--radius-sm);">
+                            <strong style="color:var(--accent-orange);">daemon/</strong>
+                            <p style="color:var(--text-muted);font-size:0.8em;">后台守护进程</p>
+                        </div>
+                        <div style="background:var(--bg-code);padding:12px;border-radius:var(--radius-sm);">
+                            <strong style="color:var(--accent-blue);">proactive/</strong>
+                            <p style="color:var(--text-muted);font-size:0.8em;">主动通知系统</p>
+                        </div>
+                        <div style="background:var(--bg-code);padding:12px;border-radius:var(--radius-sm);">
+                            <strong style="color:var(--accent-green);">coordinator/</strong>
+                            <p style="color:var(--text-muted);font-size:0.8em;">多代理协调器</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 13: Compare -->
+            <section class="section" id="compare">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(229,192,123,0.15);">⚔️</div>
+                    <div>
+                        <h2>竞品对比</h2>
+                        <p>Claude Code vs 其他 AI 编程工具</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 功能对比矩阵</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr><th>特性</th><th>Claude Code</th><th>GitHub Copilot</th><th>Cursor</th><th>Aider</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>上下文窗口</td>
+                                    <td><span class="tag tag-green">200K</span></td>
+                                    <td>8K-128K</td>
+                                    <td>可变</td>
+                                    <td>可变</td>
+                                </tr>
+                                <tr>
+                                    <td>多文件编辑</td>
+                                    <td><span class="tag tag-green">✅ 原生</span></td>
+                                    <td>❌</td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td>Shell 执行</td>
+                                    <td><span class="tag tag-green">✅ 原生</span></td>
+                                    <td>❌</td>
+                                    <td>⚠️</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td>子代理</td>
+                                    <td><span class="tag tag-green">✅ Task</span></td>
+                                    <td>❌</td>
+                                    <td>⚠️</td>
+                                    <td>❌</td>
+                                </tr>
+                                <tr>
+                                    <td>MCP 协议</td>
+                                    <td><span class="tag tag-green">✅ 原生</span></td>
+                                    <td>❌</td>
+                                    <td>❌</td>
+                                    <td>❌</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="comparison">
+                    <div class="col">
+                        <h4 style="color:var(--accent-green);">✅ Claude Code 优势</h4>
+                        <ul>
+                            <li><strong>超大上下文</strong>：200K tokens</li>
+                            <li><strong>原生多文件</strong>：自动关联修改</li>
+                            <li><strong>Shell 集成</strong>：执行任何 CLI</li>
+                            <li><strong>子代理隔离</strong>：并行不污染</li>
+                            <li><strong>插件生态</strong>：MCP 协议</li>
+                        </ul>
+                    </div>
+                    <div class="col">
+                        <h4 style="color:var(--accent-red);">❌ Claude Code 局限</h4>
+                        <ul>
+                            <li><strong>CLI 优先</strong>：上手门槛高</li>
+                            <li><strong>仅在线</strong>：无离线模式</li>
+                            <li><strong>Anthropic 专属</strong>：不支持其他模型</li>
+                            <li><strong>成本</strong>：Opus 调用较高</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 14: Philosophy -->
+            <section class="section" id="philosophy">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(229,192,123,0.15);">💡</div>
+                    <div>
+                        <h2>设计哲学</h2>
+                        <p>理解 Anthropic 的设计取舍</p>
+                    </div>
+                </div>
+
+                <div class="comparison">
+                    <div class="col">
+                        <h4 style="color:var(--accent-green);">✅ Claude Code 选择</h4>
+                        <ul>
+                            <li>简单 while 循环</li>
+                            <li>模型驱动决策</li>
+                            <li>Grep 搜索，无 RAG</li>
+                            <li>子代理隔离上下文</li>
+                            <li>插件系统，MCP 协议</li>
+                        </ul>
+                    </div>
+                    <div class="col">
+                        <h4 style="color:var(--accent-red);">❌ Claude Code 不做</h4>
+                        <ul>
+                            <li>意图分类器</li>
+                            <li>DAG 工作流编排</li>
+                            <li>嵌入向量 / RAG</li>
+                            <li>本地模型运行</li>
+                            <li>图形化界面</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 核心设计原则</h3>
+                    <div class="grid-2">
+                        <div class="flow-steps">
+                            <div class="flow-step">
+                                <div class="step-num" style="background:rgba(232,126,47,0.2);color:var(--accent-orange);">1</div>
+                                <div class="step-content">
+                                    <h4>Less Scaffolding, More Model</h4>
+                                    <p>少搭脚手架，多信模型。</p>
+                                </div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="step-num" style="background:rgba(109,179,242,0.2);color:var(--accent-blue);">2</div>
+                                <div class="step-content">
+                                    <h4>Search, Don't Index</h4>
+                                    <p>搜索而非索引。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-steps">
+                            <div class="flow-step">
+                                <div class="step-num" style="background:rgba(123,196,127,0.2);color:var(--accent-green);">3</div>
+                                <div class="step-content">
+                                    <h4>Isolation by Default</h4>
+                                    <p>默认隔离。</p>
+                                </div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="step-num" style="background:rgba(180,142,173,0.2);color:var(--accent-purple);">4</div>
+                                <div class="step-content">
+                                    <h4>Progressive Enhancement</h4>
+                                    <p>渐进增强。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Claude Code 架构深度解析 v7.0 | 基于 v2.1.88 源码快照 | 仅供学习研究</p>
+            <p>
+                参考：
+                <a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank" rel="noopener">Anthropic Blog</a> ·
+                <a href="https://arxiv.org/pdf/2604.14228" target="_blank" rel="noopener">arXiv Paper</a> ·
+                <a href="https://code.claude.com/docs" target="_blank" rel="noopener">Official Docs</a>
+            </p>
+        </footer>
+    </main>
+</div>
+
+<!-- Back to Top -->
+<button class="back-to-top no-print" id="backToTop" aria-label="返回顶部" data-i18n-aria="backToTop">▲</button>
+
+<!-- Offline Indicator -->
+<div class="offline-indicator" id="offline-indicator" data-i18n="offline">📡 当前处于离线模式</div>
+<!-- 诊断输出（隐藏） -->
+<pre id="test-diagnostics" style="display:none;"></pre>
+
+<!-- Security & Error Handling (优先加载) -->
+<script src="js/security.js?v=26"></script>
+<script src="js/error-boundary.js?v=26"></script>
+
+<!-- 新架构模块系统 (Phase 1) -->
+<script src="js/module-system.js?v=26"></script>
+<script src="js/performance-monitor.js?v=26"></script>
+
+<!-- Module Scripts (order matters: core.js 必须最先加载) -->
+<script src="js/core.js?v=29"></script>
+<script src="js/plugins.js?v=29"></script>
+<script src="js/lazy-loader.js?v=29"></script>
+<script src="js/main.js?v=29"></script>
+<script src="js/search.js?v=29"></script>
+<script src="js/theme.js?v=29"></script>
+<script src="js/features.js?v=29"></script>
+
+<!-- i18n 必须在 DOMContentLoaded 之前加载并初始化 -->
+<script src="js/i18n.js?v=29"></script>
+<script>
+    // 立即初始化 i18n，确保在 DOM 渲染前应用翻译
+    if (typeof I18nModule !== 'undefined') {
+        I18nModule.init();
+    }
+</script>
+<script src="js/enhancements.js?v=29" defer></script>
+<script src="js/a11y.js?v=29" defer></script>
+<!-- explorer.js 和 bookmark.js 不依赖 CDN 库，改为同步加载确保在 DOMContentLoaded 前可用 -->
+<script src="js/explorer.js?v=29"></script>
+<script src="js/bookmark.js?v=29"></script>
+<script src="js/dashboard.js?v=29" defer></script>
+
+<!-- Phase 2: 功能创新模块 -->
+<script src="js/virtual-scroll.js?v=29" defer></script>
+<script src="js/advanced-search.js?v=29" defer></script>
+<script src="js/collaboration.js?v=29" defer></script>
+<script src="js/mermaid-support.js?v=29" defer></script>
+<script src="js/math-renderer.js?v=29" defer></script>
+
+<!-- Phase 2: PWA 支持 -->
+<script src="js/pwa-manager.js?v=29" defer></script>
+
+<!-- 详细日志系统 -->
+<script src="js/detailed-logger.js?v=29"></script>
+
+<!-- 代码分析器 -->
+<script src="js/code-analyzer.js?v=29" defer></script>
+
+<!-- 全面测试套件 -->
+<script src="js/comprehensive-test-suite.js?v=29" defer></script>
+
+<!-- 混乱场景测试 -->
+<script src="js/chaos-test.js?v=29" defer></script>
+
+<!-- 测试执行器 -->
+<script src="js/run-all-tests.js?v=29" defer></script>
+
+<!-- 长时间运行测试 -->
+<script src="js/long-running-test.js?v=29" defer></script>
+
+<!-- 大规模数据测试 -->
+<script src="js/large-scale-test.js?v=29" defer></script>
+
+<!-- 迭代测试执行器 -->
+<script src="js/iteration-test-runner.js?v=29" defer></script>
+
+<!-- 测试模块 -->
+<script src="tests/test-v3.js?v=29" defer></script>
+<script src="js/stress-test.js?v=29" defer></script>
+<script src="tests/comprehensive-test.js?v=29" defer></script>
+<script>
+    // 页面加载完成后运行测试
+    window.addEventListener('load', () => {
+        // 等待所有defer脚本加载完成
+        const waitForModules = () => {
+            const requiredModules = ['ModuleSystem', 'PerformanceMonitor', 'VirtualScroll', 
+                                     'AdvancedSearch', 'CollaborationModule', 'MermaidSupport', 
+                                     'MathRenderer', 'PWAManager', 'ComprehensiveTest'];
+            const loaded = [];
+            const missing = [];
+            
+            requiredModules.forEach(m => {
+                if (typeof window[m] !== 'undefined') {
+                    loaded.push(m);
+                } else {
+                    missing.push(m);
+                }
+            });
+            
+            if (loaded.length < requiredModules.length) {
+                console.log(`⏳ 等待模块加载... (${loaded.length}/${requiredModules.length}) 缺失: ${missing.join(', ')}`);
+                setTimeout(waitForModules, 500);
+                return;
+            }
+            
+            console.log('✅ 所有模块已加载，开始运行测试...');
+            if (window.ComprehensiveTest) {
+                console.log('🚀 自动运行综合测试...');
+                ComprehensiveTest.runAll();
+            } else if (window.StressTest) {
+                console.log('🚀 自动运行压力测试...');
+                StressTest.runAll();
+            }
+        };
+        
+        // 延迟启动等待，给defer脚本加载时间
+        setTimeout(waitForModules, 1000);
+    });
+</script>
+<script>
+    // 注册 Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('✅ SW registered:', reg.scope))
+            .catch(err => console.log('❌ SW failed:', err));
+    }
+    
+    // 离线检测
+    window.addEventListener('online', () => {
+        document.getElementById('offline-indicator')?.classList.remove('visible');
+        if (typeof ToastModule !== 'undefined') ToastModule.show('网络已恢复', 'success');
+    });
+    window.addEventListener('offline', () => {
+        document.getElementById('offline-indicator')?.classList.add('visible');
+        if (typeof ToastModule !== 'undefined') ToastModule.show('当前处于离线模式', 'warning');
+    });
+    
+    // 统一初始化器：先等 core.js 加载，再初始化所有模块
+    document.addEventListener('DOMContentLoaded', () => {
+        // 检查 AppCore 是否已加载
+        if (typeof AppCore === 'undefined') {
+            console.error('❌ AppCore 未加载，无法初始化模块');
+            return;
+        }
+        
+        AppCore.logger.info('Init', '开始统一初始化所有模块...');
+        
+        // 绑定导航栏事件监听器（替代内联事件处理程序）
+        document.getElementById('dashboard-nav-link')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (typeof DashboardModule !== 'undefined') DashboardModule.open();
+        });
+        
+        document.getElementById('run-tests-nav-link')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (typeof window.runTests === 'function') window.runTests();
+        });
+        
+        document.getElementById('explorer-open-btn')?.addEventListener('click', () => {
+            if (typeof ExplorerModule !== 'undefined') ExplorerModule.open();
+        });
+        
+        // 初始化 PluginSystem
+        if (typeof PluginSystem !== 'undefined') {
+            AppCore.logger.info('Init', `PluginSystem 已加载，当前插件数: ${PluginSystem.count()}`);
+        }
+        
+        // 等待外部库加载完成
+        const waitForLibs = () => {
+            if (typeof mermaid === 'undefined' || typeof Fuse === 'undefined' || typeof Chart === 'undefined') {
+                setTimeout(waitForLibs, 100);
+                return;
+            }
+            
+            const startTime = performance.now();
+            
+            // 初始化依赖外部库的核心模块
+            MermaidModule.init();
+            SearchModule.initSearchEngine();
+            AdvancedSearch.init();
+            MermaidSupport.init();
+            DashboardModule.init();
+            
+            // 初始化依赖外部库的新功能模块
+            if (typeof VirtualScroll !== 'undefined') {
+                VirtualScroll.init();
+                AppCore.logger.info('Init', 'VirtualScroll 模块已初始化');
+            }
+            
+            const endTime = performance.now();
+            AppCore.logger.info('Init', `外部依赖模块初始化完成，耗时 ${(endTime - startTime).toFixed(2)}ms`);
+            
+            // 发布应用就绪事件
+            AppCore.bus.emit('app:ready', { duration: endTime - startTime });
+            
+            // 显示欢迎提示
+            setTimeout(() => {
+                ToastModule.show('⌘K 搜索 | 🌙 主题 | 📑 目录 | F6 切换焦点', 'info', 5000);
+            }, 2000);
+        };
+
+        // 不依赖外部 CDN 库的模块，直接初始化
+        const independentInitStart = performance.now();
+        
+        // 初始化核心模块
+        SidebarModule.init();
+        NavigationModule.init();
+        BackToTopModule.init();
+        AccordionModule.init();
+        PerformanceModule.init();
+        KeyboardModule.init();
+        
+        // 初始化功能模块
+        ThemeModule.init();
+        SearchModule.init();
+        LazyLoadModule.init();
+        PrintModule.init();
+        ToastModule.init();
+        
+        // 初始化增强模块
+        WebVitalsModule.init();
+        TocModule.init();
+        CodeCopyModule.init();
+        KeyboardNavModule.init();
+        ShareModule.init();
+        VersionLogModule.init();
+        A11yModule.init();
+
+        // 初始化新功能模块（不依赖外部库）
+        // explorer.js 和 bookmark.js 已改为同步加载，此处确保可用
+        try {
+            ExplorerModule.init();
+        } catch(e) {
+            console.error('[Init] ExplorerModule.init() 失败:', e);
+        }
+        try {
+            BookmarkModule.init();
+        } catch(e) {
+            console.error('[Init] BookmarkModule.init() 失败:', e);
+        }
+        
+        // I18nModule 已在页面加载时初始化，这里只需重新应用翻译
+        if (typeof I18nModule !== 'undefined') {
+            I18nModule.apply();
+        }
+        
+        if (typeof CollaborationModule !== 'undefined') {
+            CollaborationModule.init();
+            AppCore.logger.info('Init', 'CollaborationModule 模块已初始化');
+        }
+
+        if (typeof MathRenderer !== 'undefined') {
+            MathRenderer.init();
+            AppCore.logger.info('Init', 'MathRenderer 模块已初始化');
+        }
+
+        if (typeof PWAManager !== 'undefined') {
+            PWAManager.init();
+            AppCore.logger.info('Init', 'PWAManager 模块已初始化');
+        }
+
+        const independentInitEnd = performance.now();
+        AppCore.logger.info('Init', `独立模块初始化完成，耗时 ${(independentInitEnd - independentInitStart).toFixed(2)}ms`);
+
+        // 异步等待外部库
+        waitForLibs();
+    });
+</script>
+
+
+</body>
+</html>

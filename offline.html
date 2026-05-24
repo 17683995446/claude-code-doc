@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>离线 - Claude Code文档</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        .offline-container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 500px;
+        }
+
+        .offline-icon {
+            font-size: 6rem;
+            margin-bottom: 1.5rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .cached-content {
+            margin-top: 3rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cached-content h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .cached-list {
+            list-style: none;
+            text-align: left;
+        }
+
+        .cached-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cached-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cached-list a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .cached-list a:hover {
+            color: #764ba2;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.75rem 1.5rem;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 50px;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .connection-status.show {
+            opacity: 1;
+        }
+
+        .connection-status.online {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+
+        @media (max-width: 480px) {
+            .offline-icon {
+                font-size: 4rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connectionStatus">
+        <span class="status-indicator"></span>
+        <span id="statusText">正在检查网络...</span>
+    </div>
+
+    <div class="offline-container">
+        <div class="offline-icon">📡</div>
+        <h1>您处于离线状态</h1>
+        <p>无法连接到网络，但您仍然可以访问已缓存的内容。我们会自动检测网络恢复并为您重新加载页面。</p>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="retryConnection()">
+                <span>🔄</span> 重试连接
+            </button>
+            <a href="/" class="btn btn-secondary">
+                <span>🏠</span> 返回首页
+            </a>
+        </div>
+
+        <div class="cached-content">
+            <h2>📚 可访问的缓存内容</h2>
+            <ul class="cached-list" id="cachedList">
+                <li>⏳ 正在加载缓存列表...</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 检查网络状态
+        function checkConnection() {
+            const statusEl = document.getElementById('connectionStatus');
+            const statusText = document.getElementById('statusText');
+
+            if (navigator.onLine) {
+                statusEl.classList.add('online', 'show');
+                statusText.textContent = '网络已恢复，正在重新加载...';
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                statusEl.classList.remove('online');
+                statusEl.classList.add('show');
+                statusText.textContent = '当前处于离线状态';
+
+                setTimeout(() => {
+                    statusEl.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        // 重试连接
+        function retryConnection() {
+            const btn = document.querySelector('.btn-primary');
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span> 检查中...';
+
+            checkConnection();
+
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<span>🔄</span> 重试连接';
+            }, 2000);
+        }
+
+        // 加载缓存列表
+        async function loadCachedContent() {
+            const listEl = document.getElementById('cachedList');
+
+            try {
+                const cacheNames = await caches.keys();
+                const allRequests = [];
+
+                for (const cacheName of cacheNames) {
+                    const cache = await caches.open(cacheName);
+                    const requests = await cache.keys();
+                    allRequests.push(...requests);
+                }
+
+                // 过滤HTML页面
+                const pages = allRequests
+                    .filter(req => req.url.endsWith('.html') || req.url.endsWith('/'))
+                    .map(req => {
+                        const url = new URL(req.url);
+                        return {
+                            path: url.pathname,
+                            name: url.pathname === '/' ? '首页' : url.pathname.split('/').pop()
+                        };
+                    })
+                    .slice(0, 5); // 只显示前5个
+
+                if (pages.length > 0) {
+                    listEl.innerHTML = pages.map(page =>
+                        `<li>📄 <a href="${page.path}">${page.name}</a></li>`
+                    ).join('');
+                } else {
+                    listEl.innerHTML = '<li>暂无缓存页面</li>';
+                }
+            } catch (err) {
+                console.error('加载缓存失败:', err);
+                listEl.innerHTML = '<li>无法加载缓存列表</li>';
+            }
+        }
+
+        // 监听网络状态变化
+        window.addEventListener('online', checkConnection);
+        window.addEventListener('offline', checkConnection);
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCachedContent();
+
+            // 定期检查网络状态
+            setInterval(checkConnection, 10000);
+        });
+    </script>
+</body>
+</html>

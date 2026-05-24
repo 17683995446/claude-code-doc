@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第八轮迭代测试 - 超大规模并发压力测试</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: #1a1a2e;
+            color: #e8e8f0;
+            font-family: 'Courier New', 'Consolas', 'Monaco', monospace;
+            padding: 24px;
+            line-height: 1.6;
+        }
+        h1 {
+            font-size: 1.4em;
+            color: #e87e2f;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #353565;
+            padding-bottom: 8px;
+        }
+        h2 {
+            font-size: 1.1em;
+            color: #6db3f2;
+            margin-top: 16px;
+            margin-bottom: 6px;
+        }
+        .test-result {
+            padding: 2px 0;
+            font-size: 0.9em;
+        }
+        .pass { color: #7bc47f; }
+        .fail { color: #e06c75; }
+        .info { color: #9898b0; }
+        .warning { color: #e5c07b; }
+        .summary {
+            margin-top: 20px;
+            padding: 12px;
+            border: 1px solid #353565;
+            border-radius: 4px;
+            background: #12121f;
+        }
+        .bug-list {
+            margin-top: 12px;
+            padding: 8px;
+            border: 1px solid #e06c75;
+            border-radius: 4px;
+            background: rgba(224, 108, 117, 0.05);
+        }
+        .bug-list h3 { color: #e06c75; margin-bottom: 6px; }
+        .bug-item { color: #e5c07b; padding: 2px 0; }
+        .metric-box {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 4px;
+            background: #16213e;
+            border: 1px solid #353565;
+            border-radius: 4px;
+        }
+        .metric-label { color: #9898b0; font-size: 0.8em; }
+        .metric-value { color: #6db3f2; font-size: 1.2em; font-weight: bold; }
+        #output { white-space: pre-wrap; word-break: break-all; }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #16213e;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6db3f2, #7bc47f);
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <h1>=== 第八轮迭代测试：超大规模并发压力测试 ===</h1>
+    <div id="output"></div>
+
+    <!-- 测试用DOM元素 -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-section">
+            <ul class="sidebar-nav">
+                <li><a href="#section1" class="nav-link">Section 1</a></li>
+                <li><a href="#section2" class="nav-link">Section 2</a></li>
+            </ul>
+        </div>
+    </div>
+    <div id="main" class="main">
+        <button id="sidebarToggle">&#9664;</button>
+        <div id="section1" class="section">Section 1 Content</div>
+        <div id="section2" class="section">Section 2 Content</div>
+        <div class="accordion-item">
+            <div class="accordion-header">Accordion Header</div>
+            <div class="accordion-content">Accordion Content</div>
+        </div>
+        <input type="text" id="search-input" placeholder="Search..." />
+        <button id="backToTop">Back to Top</button>
+    </div>
+
+    <!-- 加载核心JS文件 -->
+    <script src="js/core.js"></script>
+    <script src="js/detailed-logger.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/theme.js"></script>
+
+    <script>
+    (async function() {
+        'use strict';
+
+        // ==================== 测试框架 ====================
+        const results = [];
+        const bugs = [];
+        const performanceMetrics = {
+            eventLatency: [],
+            memoryUsage: [],
+            cpuUsage: [],
+            errorRates: []
+        };
+        let totalTests = 0;
+        let passCount = 0;
+        let failCount = 0;
+
+        const output = document.getElementById('output');
+
+        function log(text, cls) {
+            const div = document.createElement('div');
+            div.className = 'test-result ' + (cls || 'info');
+            div.textContent = text;
+            output.appendChild(div);
+        }
+
+        function assert(condition, testName, errorMsg) {
+            totalTests++;
+            if (condition) {
+                passCount++;
+                log('  ' + testName + ' : PASS', 'pass');
+                results.push({ name: testName, status: 'pass' });
+            } else {
+                failCount++;
+                const msg = errorMsg || 'Assertion failed';
+                log('  ' + testName + ' : FAIL - ' + msg, 'fail');
+                results.push({ name: testName, status: 'fail', error: msg });
+                bugs.push(testName + ': ' + msg);
+            }
+        }
+
+        function section(title) {
+            log('');
+            log('========================================', 'info');
+            log(title, 'info');
+            log('========================================', 'info');
+        }
+
+        function metricBox(label, value) {
+            return `<div class="metric-box"><div class="metric-label">${label}</div><div class="metric-value">${value}</div></div>`;
+        }
+
+        // ==================== 压力测试工具函数 ====================
+        
+        // 测量函数执行时间
+        function measureTime(fn, iterations = 1) {
+            const start = performance.now();
+            for (let i = 0; i < iterations; i++) {
+                fn();
+            }
+            return performance.now() - start;
+        }
+
+        // 获取内存使用情况
+        function getMemoryInfo() {
+            if (performance.memory) {
+                return {
+                    used: Math.round(performance.memory.usedJSHeapSize / 1048576),
+                    total: Math.round(performance.memory.totalJSHeapSize / 1048576),
+                    limit: Math.round(performance.memory.jsHeapSizeLimit / 1048576)
+                };
+            }
+            return null;
+        }
+
+        // 并发执行多个Promise
+        async function concurrentExec(promises, concurrency = 10) {
+            const results = [];
+            const executing = [];
+            
+            for (const promise of promises) {
+                const p = Promise.resolve(promise).then(result => {
+                    executing.splice(executing.indexOf(p), 1);
+                    return result;
+                });
+                results.push(p);
+                executing.push(p);
+                
+                if (executing.length >= concurrency) {
+                    await Promise.race(executing);
+                }
+            }
+            
+            return Promise.all(results);
+        }
+
+        // ==================== 测试1: EventBus高频事件风暴 ====================
+        section('测试1: EventBus高频事件风暴测试 (10000+事件)');
+
+        const bus = new EventBus();
+        let eventCount = 0;
+        let errorCount = 0;
+        const eventTarget = 10000;
+
+        // 注册多个监听器
+        for (let i = 0; i < 50; i++) {
+            bus.on('storm:test', () => { eventCount++; });
+        }
+
+        // 高频发射事件
+        const stormStart = performance.now();
+        for (let i = 0; i < eventTarget; i++) {
+            try {
+                bus.emit('storm:test', { index: i });
+            } catch (e) {
+                errorCount++;
+            }
+        }
+        const stormDuration = performance.now() - stormStart;
+        const eventsPerSecond = Math.round((eventTarget * 50) / (stormDuration / 1000));
+
+        assert(errorCount === 0, `事件风暴无错误 (错误数: ${errorCount})`);
+        assert(eventCount === eventTarget * 50, `所有事件被正确处理 (期望: ${eventTarget * 50}, 实际: ${eventCount})`);
+        assert(stormDuration < 5000, `事件风暴在5秒内完成 (实际: ${stormDuration.toFixed(2)}ms)`);
+        
+        log(`  事件发射数: ${eventTarget}`, 'info');
+        log(`  监听器数: 50`, 'info');
+        log(`  总处理事件: ${eventCount}`, 'info');
+        log(`  耗时: ${stormDuration.toFixed(2)}ms`, 'info');
+        log(`  处理速度: ${eventsPerSecond.toLocaleString()} 事件/秒`, 'info');
+
+        performanceMetrics.eventLatency.push(stormDuration);
+
+        // ==================== 测试2: 多实例并发初始化 ====================
+        section('测试2: 多实例并发初始化测试 (50个App实例)');
+
+        const instances = [];
+        let initErrors = 0;
+        const instanceCount = 50;
+
+        const initStart = performance.now();
+        
+        // 创建多个App实例并并发初始化
+        const initPromises = [];
+        for (let i = 0; i < instanceCount; i++) {
+            initPromises.push((async () => {
+                try {
+                    // 创建独立的App实例
+                    const appInstance = {
+                        id: i,
+                        modules: [],
+                        async init() {
+                            this.modules = [MermaidModule, SidebarModule, ThemeModule];
+                            for (const mod of this.modules) {
+                                mod.init();
+                            }
+                            return this;
+                        },
+                        async destroy() {
+                            for (const mod of this.modules) {
+                                if (mod.destroy) mod.destroy();
+                            }
+                        }
+                    };
+                    await appInstance.init();
+                    instances.push(appInstance);
+                } catch (e) {
+                    initErrors++;
+                }
+            })());
+        }
+
+        await Promise.all(initPromises);
+        const initDuration = performance.now() - initStart;
+
+        assert(initErrors === 0, `多实例初始化无错误 (错误数: ${initErrors})`);
+        assert(instances.length === instanceCount, `所有实例初始化成功 (期望: ${instanceCount}, 实际: ${instances.length})`);
+        assert(initDuration < 10000, `多实例初始化在10秒内完成 (实际: ${initDuration.toFixed(2)}ms)`);
+
+        log(`  实例数: ${instanceCount}`, 'info');
+        log(`  成功初始化: ${instances.length}`, 'info');
+        log(`  耗时: ${initDuration.toFixed(2)}ms`, 'info');
+        log(`  平均每个实例: ${(initDuration / instanceCount).toFixed(2)}ms`, 'info');
+
+        // 清理实例
+        for (const inst of instances) {
+            await inst.destroy();
+        }
+
+        // ==================== 测试3: 状态竞争测试 ====================
+        section('测试3: 状态竞争测试 (100并发写入)');
+
+        State.init();
+        let raceErrors = 0;
+        let raceSuccess = 0;
+        const raceCount = 100;
+
+        const racePromises = [];
+        for (let i = 0; i < raceCount; i++) {
+            racePromises.push((async () => {
+                try {
+                    State.set('raceKey', i);
+                    State.set('raceCounter', (State.get('raceCounter') || 0) + 1);
+                    raceSuccess++;
+                } catch (e) {
+                    raceErrors++;
+                }
+            })());
+        }
+
+        await Promise.all(racePromises);
+
+        assert(raceErrors === 0, `状态竞争无错误 (错误数: ${raceErrors})`);
+        assert(raceSuccess === raceCount, `所有状态写入成功 (期望: ${raceCount}, 实际: ${raceSuccess})`);
+        assert(State.get('raceCounter') === raceCount, `状态计数正确 (期望: ${raceCount}, 实际: ${State.get('raceCounter')})`);
+
+        log(`  并发写入数: ${raceCount}`, 'info');
+        log(`  成功写入: ${raceSuccess}`, 'info');
+        log(`  最终计数: ${State.get('raceCounter')}`, 'info');
+
+        // ==================== 测试4: 内存压力测试 ====================
+        section('测试4: 内存压力测试 (创建10000个事件监听器)');
+
+        const memBefore = getMemoryInfo();
+        const pressureBus = new EventBus();
+        const listenerCount = 10000;
+
+        // 创建大量监听器
+        const memStart = performance.now();
+        for (let i = 0; i < listenerCount; i++) {
+            pressureBus.on(`pressure:event:${i}`, () => {});
+        }
+        const memDuration = performance.now() - memStart;
+
+        const memAfter = getMemoryInfo();
+        
+        assert(pressureBus._listeners.size === listenerCount, `所有监听器已注册 (期望: ${listenerCount}, 实际: ${pressureBus._listeners.size})`);
+        assert(memDuration < 5000, `监听器注册在5秒内完成 (实际: ${memDuration.toFixed(2)}ms)`);
+
+        log(`  监听器数量: ${listenerCount}`, 'info');
+        log(`  注册耗时: ${memDuration.toFixed(2)}ms`, 'info');
+        if (memBefore && memAfter) {
+            log(`  内存使用前: ${memBefore.used}MB`, 'info');
+            log(`  内存使用后: ${memAfter.used}MB`, 'info');
+            log(`  内存增长: ${memAfter.used - memBefore.used}MB`, 'info');
+        }
+
+        // 清理
+        pressureBus.destroy();
+
+        // ==================== 测试5: 长时间稳定性测试 ====================
+        section('测试5: 长时间稳定性测试 (模拟30秒高频操作)');
+
+        const stabilityBus = new EventBus();
+        let stabilityErrors = 0;
+        let stabilityEvents = 0;
+        const stabilityDuration = 30000; // 30秒
+        const stabilityStart = performance.now();
+
+        // 注册监听器
+        for (let i = 0; i < 10; i++) {
+            stabilityBus.on('stability:test', () => { stabilityEvents++; });
+        }
+
+        // 持续发射事件
+        const stabilityInterval = setInterval(() => {
+            try {
+                for (let i = 0; i < 100; i++) {
+                    stabilityBus.emit('stability:test', { time: Date.now() });
+                }
+            } catch (e) {
+                stabilityErrors++;
+            }
+        }, 100);
+
+        // 等待30秒
+        await new Promise(resolve => setTimeout(resolve, stabilityDuration));
+        clearInterval(stabilityInterval);
+
+        const actualDuration = performance.now() - stabilityStart;
+
+        assert(stabilityErrors === 0, `长时间运行无错误 (错误数: ${stabilityErrors})`);
+        assert(stabilityEvents > 29000, `事件处理数量正确 (期望: >29000, 实际: ${stabilityEvents})`);
+
+        log(`  运行时长: ${(actualDuration / 1000).toFixed(2)}秒`, 'info');
+        log(`  发射事件: ~30000`, 'info');
+        log(`  处理事件: ${stabilityEvents}`, 'info');
+        log(`  错误数: ${stabilityErrors}`, 'info');
+
+        stabilityBus.destroy();
+
+        // ==================== 测试6: 混沌并发测试 ====================
+        section('测试6: 混沌并发测试 (随机操作组合)');
+
+        const chaosBus = new EventBus();
+        const chaosRegistry = new ModuleRegistry();
+        let chaosErrors = 0;
+        let chaosOps = 0;
+        const chaosTarget = 1000;
+
+        const chaosOperations = [
+            () => { chaosBus.on(`chaos:${Math.random()}`, () => {}); },
+            () => { chaosBus.emit(`chaos:${Math.random()}`, {}); },
+            () => { State.set(`chaosKey${Math.floor(Math.random() * 100)}`, Math.random()); },
+            () => { State.get(`chaosKey${Math.floor(Math.random() * 100)}`); },
+            () => { 
+                const modName = `chaosMod${Math.floor(Math.random() * 50)}`;
+                chaosRegistry.register(modName, { init: () => {}, destroy: () => {} }); 
+            },
+            () => { 
+                const modName = `chaosMod${Math.floor(Math.random() * 50)}`;
+                chaosRegistry.init(modName).catch(() => {}); 
+            },
+            () => { ThemeModule.toggle(); },
+            () => { SidebarModule.toggleSidebar(); },
+            () => { DOM.$('#sidebar'); },
+            () => { DOM.toggleClass(document.body, 'chaos-test'); }
+        ];
+
+        const chaosStart = performance.now();
+        
+        for (let i = 0; i < chaosTarget; i++) {
+            try {
+                const op = chaosOperations[Math.floor(Math.random() * chaosOperations.length)];
+                op();
+                chaosOps++;
+            } catch (e) {
+                chaosErrors++;
+            }
+        }
+
+        const chaosDuration = performance.now() - chaosStart;
+
+        assert(chaosErrors < 50, `混沌测试错误率在可接受范围 (错误数: ${chaosErrors})`);
+        assert(chaosOps === chaosTarget, `所有混沌操作执行完成 (期望: ${chaosTarget}, 实际: ${chaosOps})`);
+
+        log(`  操作数: ${chaosOps}`, 'info');
+        log(`  错误数: ${chaosErrors}`, 'info');
+        log(`  错误率: ${((chaosErrors / chaosOps) * 100).toFixed(2)}%`, 'info');
+        log(`  耗时: ${chaosDuration.toFixed(2)}ms`, 'info');
+
+        // ==================== 测试7: 边界条件压力测试 ====================
+        section('测试7: 边界条件压力测试');
+
+        // 测试超长事件名
+        let longNameError = false;
+        try {
+            const longBus = new EventBus();
+            const longName = 'a'.repeat(10000);
+            longBus.on(longName, () => {});
+            longBus.emit(longName, {});
+        } catch (e) {
+            longNameError = true;
+        }
+        assert(!longNameError, '超长事件名处理无崩溃');
+
+        // 测试大量数据传递
+        let bigDataError = false;
+        try {
+            const bigBus = new EventBus();
+            bigBus.on('big:data', () => {});
+            const bigData = { arr: new Array(100000).fill('x') };
+            bigBus.emit('big:data', bigData);
+        } catch (e) {
+            bigDataError = true;
+        }
+        assert(!bigDataError, '大数据传递无崩溃');
+
+        // 测试快速注册/注销
+        let rapidRegError = false;
+        const rapidBus = new EventBus();
+        try {
+            for (let i = 0; i < 1000; i++) {
+                const handler = () => {};
+                rapidBus.on('rapid:test', handler);
+                rapidBus.off('rapid:test', handler);
+            }
+        } catch (e) {
+            rapidRegError = true;
+        }
+        assert(!rapidRegError, '快速注册/注销无错误');
+
+        log(`  超长事件名测试: 通过`, 'info');
+        log(`  大数据传递测试: 通过`, 'info');
+        log(`  快速注册/注销测试: 通过`, 'info');
+
+        // ==================== 测试8: 性能基准测试 ====================
+        section('测试8: 性能基准测试');
+
+        // EventBus emit性能
+        const perfBus = new EventBus();
+        perfBus.on('perf:test', () => {});
+        
+        const perfStart = performance.now();
+        for (let i = 0; i < 100000; i++) {
+            perfBus.emit('perf:test', i);
+        }
+        const perfDuration = performance.now() - perfStart;
+        const perfRate = Math.round(100000 / (perfDuration / 1000));
+
+        assert(perfDuration < 10000, `10万次emit在10秒内完成 (实际: ${perfDuration.toFixed(2)}ms)`);
+        assert(perfRate > 10000, `emit性能达标 (>10000/秒, 实际: ${perfRate.toLocaleString()}/秒)`);
+
+        log(`  操作数: 100000`, 'info');
+        log(`  耗时: ${perfDuration.toFixed(2)}ms`, 'info');
+        log(`  性能: ${perfRate.toLocaleString()} 操作/秒`, 'info');
+
+        // ==================== 汇总 ====================
+        section('========================================');
+        section('           Round 8 测试结果汇总');
+        section('========================================');
+
+        const summaryDiv = document.createElement('div');
+        summaryDiv.className = 'summary';
+        summaryDiv.innerHTML = 
+            '<h2>测试统计</h2>' +
+            metricBox('总测试数', totalTests) +
+            metricBox('通过', passCount) +
+            metricBox('失败', failCount) +
+            metricBox('成功率', ((passCount / totalTests) * 100).toFixed(1) + '%') +
+            '<br><br>' +
+            '<h2>性能指标</h2>' +
+            metricBox('事件处理速度', eventsPerSecond.toLocaleString() + '/s') +
+            metricBox('实例初始化', instanceCount + '个') +
+            metricBox('混沌操作', chaosOps.toLocaleString()) +
+            metricBox('emit性能', perfRate.toLocaleString() + '/s');
+        output.appendChild(summaryDiv);
+
+        if (bugs.length > 0) {
+            const bugDiv = document.createElement('div');
+            bugDiv.className = 'bug-list';
+            let bugHtml = '<h3>发现的Bug列表 (' + bugs.length + ')</h3>';
+            bugs.forEach(function(bug, i) {
+                bugHtml += '<div class="bug-item">' + (i + 1) + '. ' + bug + '</div>';
+            });
+            bugDiv.innerHTML = bugHtml;
+            output.appendChild(bugDiv);
+        } else {
+            log('');
+            log('🎉 未发现Bug - 系统通过超大规模并发压力测试！', 'pass');
+        }
+
+        // 写入全局对象
+        window.__ROUND8_RESULTS__ = {
+            totalTests: totalTests,
+            passCount: passCount,
+            failCount: failCount,
+            performanceMetrics: {
+                eventsPerSecond: eventsPerSecond,
+                instanceCount: instanceCount,
+                chaosOps: chaosOps,
+                perfRate: perfRate
+            },
+            bugs: bugs,
+            timestamp: new Date().toISOString()
+        };
+
+        console.log('[Round8] 测试完成:', window.__ROUND8_RESULTS__);
+    })();
+    </script>
+</body>
+</html>

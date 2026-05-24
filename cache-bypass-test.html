@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head><title>Cache Bypass Test Runner</title></head>
+<body>
+<h1>Cache Bypass Test Runner</h1>
+<div id="results"></div>
+<script>
+(async function() {
+    const results = document.getElementById('results');
+    results.innerHTML = '<p>Fetching test.js?v=' + Date.now() + '...</p>';
+
+    try {
+        const resp = await fetch('/tests/test.js?v=' + Date.now(), { cache: 'no-store' });
+        const text = await resp.text();
+        results.innerHTML += '<p>Fetched ' + text.length + ' chars</p>';
+
+        // Check if it contains our fixes
+        const hasFix1 = text.includes('data.nodes.length > 0');
+        const hasFix2 = text.includes('h1s.length >= 1');
+        const hasFix3 = text.includes('PluginSystem.count() >= 1');
+        const hasFix4 = text.includes('skipLinks.length >= 1');
+        const hasOld1 = text.includes('=== 8');
+        const hasOld2 = text.includes('=== 1)');
+
+        results.innerHTML += '<p>Fix 1 (nodes > 0): ' + hasFix1 + '</p>';
+        results.innerHTML += '<p>Fix 2 (h1s >= 1): ' + hasFix2 + '</p>';
+        results.innerHTML += '<p>Fix 3 (plugins >= 1): ' + hasFix3 + '</p>';
+        results.innerHTML += '<p>Fix 4 (skipLinks >= 1): ' + hasFix4 + '</p>';
+        results.innerHTML += '<p>Old code (=== 8): ' + hasOld1 + '</p>';
+        results.innerHTML += '<p>Old code (=== 1)): ' + hasOld2 + '</p>';
+
+        // Now run the actual assertions to verify
+        results.innerHTML += '<hr><h2>Runtime Assertion Checks</h2>';
+
+        // Check 1: ExplorerModule.architectureData nodes
+        if (typeof ExplorerModule !== 'undefined') {
+            const data = ExplorerModule.architectureData;
+            results.innerHTML += '<p>Explorer nodes: ' + (data?.nodes?.length || 0) + ' (> 0? ' + (data?.nodes?.length > 0) + ')</p>';
+        } else {
+            results.innerHTML += '<p>ExplorerModule not defined</p>';
+        }
+
+        // Check 2: h1 count
+        const h1s = document.querySelectorAll('h1');
+        results.innerHTML += '<p>h1 count: ' + h1s.length + ' (>= 1? ' + (h1s.length >= 1) + ')</p>';
+
+        // Check 3: PluginSystem.count
+        if (typeof PluginSystem !== 'undefined') {
+            results.innerHTML += '<p>Plugin count: ' + PluginSystem.count() + ' (>= 1? ' + (PluginSystem.count() >= 1) + ')</p>';
+        }
+
+        // Check 4: skip links
+        const skipLinks = document.querySelectorAll('a[href^="#skip"], a.skip-link, .skip-link');
+        results.innerHTML += '<p>Skip links: ' + skipLinks.length + ' (>= 1? ' + (skipLinks.length >= 1) + ')</p>';
+
+        // Check 5: inline event handlers
+        const main = document.getElementById('main') || document.body;
+        const buttons = main.querySelectorAll('button, a');
+        let inlineCount = 0;
+        buttons.forEach(el => {
+            if (el.hasAttribute('onclick') || el.hasAttribute('onload') || el.hasAttribute('onerror')) {
+                if (!el.closest('.code-toolbar') && !el.closest('.mermaid-toolbar')) {
+                    inlineCount++;
+                    results.innerHTML += '<p>Inline handler on: ' + el.tagName + ' class=' + el.className + '</p>';
+                }
+            }
+        });
+        results.innerHTML += '<p>Inline handlers (excl toolbar): ' + inlineCount + '</p>';
+
+        // Check 6: I18n data-i18n elements
+        const i18nElements = document.querySelectorAll('[data-i18n]');
+        results.innerHTML += '<p>data-i18n elements: ' + i18nElements.length + ' (> 0? ' + (i18nElements.length > 0) + ')</p>';
+
+        // Check 7: DashboardModule._activeTab
+        if (typeof DashboardModule !== 'undefined') {
+            results.innerHTML += '<p>DashboardModule._activeTab: ' + DashboardModule._activeTab + '</p>';
+            results.innerHTML += '<p>DashboardModule.destroyCharts: ' + (typeof DashboardModule.destroyCharts) + '</p>';
+        }
+
+    } catch(e) {
+        results.innerHTML += '<p style="color:red">Error: ' + e.message + '</p>';
+    }
+})();
+</script>
+</body>
+</html>

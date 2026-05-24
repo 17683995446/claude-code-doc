@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head><title>Explorer Diagnostic</title></head>
+<body>
+<pre id="result"></pre>
+<script>
+    // 加载 explorer.js
+    const script = document.createElement('script');
+    script.src = 'http://localhost:8080/js/explorer.js?v=16';
+    script.onload = () => {
+        const result = document.getElementById('result');
+        result.textContent += 'ExplorerModule loaded: ' + (typeof ExplorerModule) + '\n';
+        result.textContent += 'window.ExplorerModule: ' + (typeof window.ExplorerModule) + '\n';
+        
+        if (typeof ExplorerModule !== 'undefined') {
+            result.textContent += 'ExplorerModule keys: ' + Object.keys(ExplorerModule).join(', ') + '\n';
+            result.textContent += 'init type: ' + typeof ExplorerModule.init + '\n';
+            result.textContent += 'open type: ' + typeof ExplorerModule.open + '\n';
+            result.textContent += 'createUI type: ' + typeof ExplorerModule.createUI + '\n';
+            
+            try {
+                ExplorerModule.init();
+                result.textContent += 'init() success!\n';
+                result.textContent += '_overlay: ' + !!ExplorerModule._overlay + '\n';
+                result.textContent += 'overlay in DOM: ' + !!document.getElementById('explorer-overlay') + '\n';
+            } catch(e) {
+                result.textContent += 'init() FAILED: ' + e.message + '\n';
+                result.textContent += 'Stack: ' + e.stack + '\n';
+            }
+        }
+    };
+    script.onerror = (e) => {
+        document.getElementById('result').textContent += 'FAILED to load explorer.js: ' + JSON.stringify(e) + '\n';
+    };
+    document.head.appendChild(script);
+</script>
+</body>
+</html>

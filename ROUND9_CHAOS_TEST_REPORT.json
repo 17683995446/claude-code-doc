@@ -1,0 +1,554 @@
+{
+  "round": 9,
+  "timestamp": "2026-05-23T00:21:53.905Z",
+  "summary": {
+    "total": 61,
+    "passed": 58,
+    "failed": 3,
+    "rate": "95.1%"
+  },
+  "groupStats": {
+    "A. BUG-ROUND9-001: init依赖初始化失败后终止当前模块": {
+      "pass": 2,
+      "fail": 0,
+      "total": 2
+    },
+    "B. BUG-ROUND9-002: unregister处理INITIALIZING状态": {
+      "pass": 2,
+      "fail": 0,
+      "total": 2
+    },
+    "C. BUG-ROUND9-003: debounce.flush中this指向": {
+      "pass": 3,
+      "fail": 0,
+      "total": 3
+    },
+    "D. BUG-ROUND9-004: revokeObjectURL延迟": {
+      "pass": 1,
+      "fail": 0,
+      "total": 1
+    },
+    "E. BUG-ROUND9-005: State扩展forbiddenKeys": {
+      "pass": 7,
+      "fail": 0,
+      "total": 7
+    },
+    "F. BUG-ROUND9-006: ThemeModule注册到App.modules": {
+      "pass": 2,
+      "fail": 0,
+      "total": 2
+    },
+    "G. BUG-ROUND9-007: EventBus.clear清理history和emitting": {
+      "pass": 3,
+      "fail": 0,
+      "total": 3
+    },
+    "H. BUG-ROUND9-008: destroy检查instance为null": {
+      "pass": 2,
+      "fail": 0,
+      "total": 2
+    },
+    "I. BUG-ROUND9-009: healthCheck处理null实例": {
+      "pass": 1,
+      "fail": 0,
+      "total": 1
+    },
+    "J. BUG-ROUND9-010: DetailedLogger.init防重入": {
+      "pass": 2,
+      "fail": 0,
+      "total": 2
+    },
+    "K. BUG-ROUND9-011: console.table兼容性": {
+      "pass": 0,
+      "fail": 1,
+      "total": 1
+    },
+    "L. BUG-ROUND9-012: App.destroy反序销毁": {
+      "pass": 1,
+      "fail": 0,
+      "total": 1
+    },
+    "M. BUG-ROUND9-013: PerformanceModule load事件清理": {
+      "pass": 2,
+      "fail": 0,
+      "total": 2
+    },
+    "N. BUG-ROUND9-014: State.set DetailedLogger存在性检查": {
+      "pass": 1,
+      "fail": 0,
+      "total": 1
+    },
+    "O. BUG-ROUND9-015: checkResponsive避免冗余close": {
+      "pass": 1,
+      "fail": 0,
+      "total": 1
+    },
+    "P. 混沌对抗: 极端参数组合": {
+      "pass": 15,
+      "fail": 1,
+      "total": 16
+    },
+    "Q. 性能压力测试": {
+      "pass": 3,
+      "fail": 0,
+      "total": 3
+    },
+    "R. 回归测试 - 全部历史BUG": {
+      "pass": 10,
+      "fail": 1,
+      "total": 11
+    }
+  },
+  "failures": [
+    {
+      "id": "T026",
+      "group": "K. BUG-ROUND9-011: console.table兼容性",
+      "name": "generateReport在无console.table时不崩溃",
+      "status": "FAIL",
+      "error": "anyConsole[method] is not a function"
+    },
+    {
+      "id": "T032",
+      "group": "P. 混沌对抗: 极端参数组合",
+      "name": "EventBus: 空字符串/null/undefined事件名",
+      "status": "FAIL",
+      "error": "Cannot read properties of null (reading 'startsWith')"
+    },
+    {
+      "id": "T058",
+      "group": "R. 回归测试 - 全部历史BUG",
+      "name": "BUG-011: getHistory深拷贝",
+      "status": "FAIL",
+      "error": "值不匹配: 期望=42, 实际=0"
+    }
+  ],
+  "allResults": [
+    {
+      "id": "T001",
+      "group": "A. BUG-ROUND9-001: init依赖初始化失败后终止当前模块",
+      "name": "依赖初始化失败时当前模块不继续",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T002",
+      "group": "A. BUG-ROUND9-001: init依赖初始化失败后终止当前模块",
+      "name": "依赖未注册时当前模块不继续",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T003",
+      "group": "B. BUG-ROUND9-002: unregister处理INITIALIZING状态",
+      "name": "unregister是async方法",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T004",
+      "group": "B. BUG-ROUND9-002: unregister处理INITIALIZING状态",
+      "name": "unregister已初始化模块先await destroy",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T005",
+      "group": "C. BUG-ROUND9-003: debounce.flush中this指向",
+      "name": "debounce.flush保持正确的this指向",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T006",
+      "group": "C. BUG-ROUND9-003: debounce.flush中this指向",
+      "name": "debounce.cancel后flush不执行",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T007",
+      "group": "C. BUG-ROUND9-003: debounce.flush中this指向",
+      "name": "debounce正常调用后flush执行",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T008",
+      "group": "D. BUG-ROUND9-004: revokeObjectURL延迟",
+      "name": "export方法不立即revokeObjectURL",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T009",
+      "group": "E. BUG-ROUND9-005: State扩展forbiddenKeys",
+      "name": "State拒绝set方法名",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T010",
+      "group": "E. BUG-ROUND9-005: State扩展forbiddenKeys",
+      "name": "State拒绝get方法名",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T011",
+      "group": "E. BUG-ROUND9-005: State扩展forbiddenKeys",
+      "name": "State拒绝init方法名",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T012",
+      "group": "E. BUG-ROUND9-005: State扩展forbiddenKeys",
+      "name": "State拒绝toString",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T013",
+      "group": "E. BUG-ROUND9-005: State扩展forbiddenKeys",
+      "name": "State拒绝valueOf",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T014",
+      "group": "E. BUG-ROUND9-005: State扩展forbiddenKeys",
+      "name": "State拒绝hasOwnProperty",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T015",
+      "group": "E. BUG-ROUND9-005: State扩展forbiddenKeys",
+      "name": "State正常set/get仍然工作",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T016",
+      "group": "F. BUG-ROUND9-006: ThemeModule注册到App.modules",
+      "name": "App.modules包含ThemeModule",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T017",
+      "group": "F. BUG-ROUND9-006: ThemeModule注册到App.modules",
+      "name": "App.destroy会销毁ThemeModule",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T018",
+      "group": "G. BUG-ROUND9-007: EventBus.clear清理history和emitting",
+      "name": "clear()清理_history",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T019",
+      "group": "G. BUG-ROUND9-007: EventBus.clear清理history和emitting",
+      "name": "clear()清理_emitting",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T020",
+      "group": "G. BUG-ROUND9-007: EventBus.clear清理history和emitting",
+      "name": "clear后emit正常工作",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T021",
+      "group": "H. BUG-ROUND9-008: destroy检查instance为null",
+      "name": "destroy null实例不崩溃",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T022",
+      "group": "H. BUG-ROUND9-008: destroy检查instance为null",
+      "name": "destroy undefined实例不崩溃",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T023",
+      "group": "I. BUG-ROUND9-009: healthCheck处理null实例",
+      "name": "healthCheck null实例返回error",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T024",
+      "group": "J. BUG-ROUND9-010: DetailedLogger.init防重入",
+      "name": "init重复调用不创建多个定时器",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T025",
+      "group": "J. BUG-ROUND9-010: DetailedLogger.init防重入",
+      "name": "init返回this",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T026",
+      "group": "K. BUG-ROUND9-011: console.table兼容性",
+      "name": "generateReport在无console.table时不崩溃",
+      "status": "FAIL",
+      "error": "anyConsole[method] is not a function"
+    },
+    {
+      "id": "T027",
+      "group": "L. BUG-ROUND9-012: App.destroy反序销毁",
+      "name": "destroy模块顺序与init相反",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T028",
+      "group": "M. BUG-ROUND9-013: PerformanceModule load事件清理",
+      "name": "PerformanceModule保存load handler引用",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T029",
+      "group": "M. BUG-ROUND9-013: PerformanceModule load事件清理",
+      "name": "PerformanceModule.destroy清理load handler",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T030",
+      "group": "N. BUG-ROUND9-014: State.set DetailedLogger存在性检查",
+      "name": "State.set在DetailedLogger不存在时不崩溃",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T031",
+      "group": "O. BUG-ROUND9-015: checkResponsive避免冗余close",
+      "name": "checkResponsive仅在状态变化时调用close",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T032",
+      "group": "P. 混沌对抗: 极端参数组合",
+      "name": "EventBus: 空字符串/null/undefined事件名",
+      "status": "FAIL",
+      "error": "Cannot read properties of null (reading 'startsWith')"
+    },
+    {
+      "id": "T033",
+      "group": "P. 混沌对抗: 极端参数组合",
+      "name": "EventBus: 超大数据emit",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T034",
+      "group": "P. 混沌对抗: 极端参数组合",
+      "name": "EventBus: 快速注册/注销循环",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T035",
+      "group": "P. 混沌对抗: 极端参数组合",
+      "name": "ModuleRegistry: 大量模块注册/注销",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T036",
+      "group": "P. 混沌对抗: 极端参数组合",
+      "name": "ModuleRegistry: 循环依赖链 A->B->C->A",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T037",
+      "group": "P. 混沌对抗: 极端参数组合",
+      "name": "ModuleRegistry: 菱形依赖 D->B, D->C, B->A, C->A",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T038",
+      "group": "P. 混沌对抗: 极端参数组合",
+      "name": "DetailedLogger: 各种边界数据类型",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T039",
+      "group": "P. 混沌对抗: 极端参数组合",
+      "name": "DetailedLogger: 循环引用对象",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T040",
+      "group": "P. 混沌对抗: 极端参数组合",
+      "name": "DetailedLogger: 深层嵌套对象",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T041",
+      "group": "P. 混沌对抗: 极端参数组合",
+      "name": "ThemeModule: 快速连续toggle 100次",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T042",
+      "group": "P. 混沌对抗: 极端参数组合",
+      "name": "ThemeModule: apply各种无效值",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T043",
+      "group": "P. 混沌对抗: 极端参数组合",
+      "name": "State: 设置各种特殊值",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T044",
+      "group": "P. 混沌对抗: 极端参数组合",
+      "name": "SidebarModule: destroy后再调用方法",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T045",
+      "group": "P. 混沌对抗: 极端参数组合",
+      "name": "AccordionModule: toggle null item",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T046",
+      "group": "P. 混沌对抗: 极端参数组合",
+      "name": "App: 多次init/destroy循环",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T047",
+      "group": "P. 混沌对抗: 极端参数组合",
+      "name": "App: init中某个模块抛异常",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T048",
+      "group": "Q. 性能压力测试",
+      "name": "EventBus: 万次emit+handler",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T049",
+      "group": "Q. 性能压力测试",
+      "name": "DetailedLogger: 万次日志记录",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T050",
+      "group": "Q. 性能压力测试",
+      "name": "ModuleRegistry: 百模块完整生命周期",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T051",
+      "group": "R. 回归测试 - 全部历史BUG",
+      "name": "BUG-001: 递归emit保护",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T052",
+      "group": "R. 回归测试 - 全部历史BUG",
+      "name": "BUG-003: null实例",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T053",
+      "group": "R. 回归测试 - 全部历史BUG",
+      "name": "BUG-004: PAUSED状态",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T054",
+      "group": "R. 回归测试 - 全部历史BUG",
+      "name": "BUG-005: 监听器超限",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T055",
+      "group": "R. 回归测试 - 全部历史BUG",
+      "name": "BUG-006: 未知日志级别",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T056",
+      "group": "R. 回归测试 - 全部历史BUG",
+      "name": "BUG-008: debounce cancel/flush",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T057",
+      "group": "R. 回归测试 - 全部历史BUG",
+      "name": "BUG-010: 拓扑排序销毁",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T058",
+      "group": "R. 回归测试 - 全部历史BUG",
+      "name": "BUG-011: getHistory深拷贝",
+      "status": "FAIL",
+      "error": "值不匹配: 期望=42, 实际=0"
+    },
+    {
+      "id": "T059",
+      "group": "R. 回归测试 - 全部历史BUG",
+      "name": "ROUND5-001: unregister",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T060",
+      "group": "R. 回归测试 - 全部历史BUG",
+      "name": "ROUND4-001: 大对象截断",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T061",
+      "group": "R. 回归测试 - 全部历史BUG",
+      "name": "ROUND8-001: 循环引用",
+      "status": "PASS",
+      "error": null
+    }
+  ]
+}

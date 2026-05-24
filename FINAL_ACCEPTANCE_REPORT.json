@@ -1,0 +1,159 @@
+{
+  "timestamp": "2026-05-21T10:45:36.249Z",
+  "duration": 368,
+  "summary": {
+    "totalPhases": 15,
+    "passed": 11,
+    "warnings": 2,
+    "failed": 1
+  },
+  "bugs": [
+    {
+      "id": 1,
+      "severity": "HIGH",
+      "category": "性能",
+      "description": "事件风暴场景下（10k事件×1k监听器），事件处理可能存在性能瓶颈",
+      "location": "EventBus.emit",
+      "evidence": "处理10,000,000次调用耗时67ms",
+      "fix": "考虑使用事件池、批量处理或Web Worker"
+    },
+    {
+      "id": 2,
+      "severity": "MEDIUM",
+      "category": "内存",
+      "description": "大规模对象创建后内存未完全释放",
+      "location": "对象生命周期管理",
+      "evidence": "内存泄漏84.6MB",
+      "fix": "实现对象池模式，优化垃圾回收"
+    },
+    {
+      "id": 3,
+      "severity": "LOW",
+      "category": "代码质量",
+      "description": "State模块中状态键硬编码，可维护性差",
+      "location": "State.init line 130",
+      "evidence": "stateKeys数组硬编码",
+      "fix": "改为动态注册机制"
+    }
+  ],
+  "fixes": [
+    {
+      "file": "js/fixes/performance-optimizations.js",
+      "description": "性能优化补丁"
+    }
+  ],
+  "phases": [
+    {
+      "name": "代码规模分析",
+      "status": "INFO",
+      "details": {
+        "message": "总计 2687 行代码, 4 个类, 94 个方法"
+      },
+      "time": 1779360335884
+    },
+    {
+      "name": "EventBus快照机制",
+      "status": "PASS",
+      "details": {
+        "message": "实现正确"
+      },
+      "time": 1779360335884
+    },
+    {
+      "name": "State原型污染防护",
+      "status": "PASS",
+      "details": {
+        "message": "实现正确"
+      },
+      "time": 1779360335884
+    },
+    {
+      "name": "循环依赖检测",
+      "status": "PASS",
+      "details": {
+        "message": "实现正确"
+      },
+      "time": 1779360335885
+    },
+    {
+      "name": "事件历史限制",
+      "status": "PASS",
+      "details": {
+        "message": "实现正确"
+      },
+      "time": 1779360335885
+    },
+    {
+      "name": "模块销毁清理",
+      "status": "FAIL",
+      "details": {
+        "message": "未找到实现"
+      },
+      "time": 1779360335885
+    },
+    {
+      "name": "极端并发事件风暴",
+      "status": "PASS",
+      "details": {
+        "message": "10k事件×1k监听器=10,000,000次调用, 耗时67ms, 错误0"
+      },
+      "time": 1779360336007
+    },
+    {
+      "name": "深层嵌套依赖链",
+      "status": "PASS",
+      "details": {
+        "message": "10层依赖链初始化成功, 耗时0ms"
+      },
+      "time": 1779360336007
+    },
+    {
+      "name": "循环依赖检测",
+      "status": "PASS",
+      "details": {
+        "message": "正确检测到循环依赖并阻止初始化"
+      },
+      "time": 1779360336007
+    },
+    {
+      "name": "内存压力测试",
+      "status": "WARN",
+      "details": {
+        "message": "初始12.7MB → 峰值97.2MB → 最终97.3MB, 泄漏84.6MB"
+      },
+      "time": 1779360336246
+    },
+    {
+      "name": "异常混乱输入处理",
+      "status": "WARN",
+      "details": {
+        "message": "11种异常输入, 处理9, 错误2"
+      },
+      "time": 1779360336247
+    },
+    {
+      "name": "EventBus最大历史记录",
+      "status": "PASS",
+      "details": {},
+      "time": 1779360336247
+    },
+    {
+      "name": "空事件名称",
+      "status": "PASS",
+      "details": {},
+      "time": 1779360336247
+    },
+    {
+      "name": "超大依赖数组",
+      "status": "PASS",
+      "details": {},
+      "time": 1779360336247
+    },
+    {
+      "name": "快速连续操作",
+      "status": "PASS",
+      "details": {},
+      "time": 1779360336248
+    }
+  ]
+}
